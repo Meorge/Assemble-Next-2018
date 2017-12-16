@@ -19,9 +19,11 @@ class Window(QtWidgets.QMainWindow):
         self.setCentralWidget(self.nodeView)
 
 
-        testNode = Node("Add", 210, 150, -115, -170, ["Input 1", "Input 2"], ["Output"])
-        self.nodeScene.addNode(testNode)
+        testNode = Node("Add", 175, 100, -115, -170, ["Input 1", "Input 2"], ["Output"])
 
+        testNode2 = Node("Display", 175, 100, -140, -170, ["Input"], [])
+        self.nodeScene.addNode(testNode)
+        self.nodeScene.addNode(testNode2)
 
         #testNodeOutlet = InputNode("hoohoo", 0, 0)
         #self.nodeScene.addItem(testNodeOutlet)
@@ -83,38 +85,55 @@ class Node(QtWidgets.QGraphicsItem):
 		self.inputs = inputs
 		self.outputs = outputs
 
+		self.inputNodes = []
+		self.outputNodes = []
+
 		self.setAcceptHoverEvents(True)
-		#self.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable)
-		#self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable)
+		self.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable)
+		self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable)
 
 		self.isBeingDragged = False
 
 	def EstablishInputsOutputs(self):
 		self.inputNodes = []
-		PinY = self.boundingRect().top() + 50
+		PinY = self.boundingRect().top() + 35
 		for inputname in self.inputs:
-			newInputNode = IOPin(inputname, self.x - 10, PinY, "input", parent=self)
-			PinY += 40
+			newInputNode = IOPin(inputname, self.x - 20, PinY, "input", parent=self)
+
+			self.inputNodes.append(newInputNode)
+			PinY += 30
 
 			self.scene().addItem(newInputNode)
 
 		self.outputNodes = []
-		PinY = self.boundingRect().top() + 50
+		PinY = self.boundingRect().top() + 35
 		for outputname in self.outputs:
-			newOutputNode = IOPin(outputname, (self.x + self.width) - 10, PinY, "output", parent=self)
-			PinY += 40
+			newOutputNode = IOPin(outputname, (self.x + self.width), PinY, "output", parent=self)
+
+			self.outputNodes.append(newOutputNode)
+			PinY += 30
 
 			self.scene().addItem(newOutputNode)
 
 	def paint(self, painter, option, widget):
-		painter.setPen(QtGui.QPen(QtGui.QColor(0,0,0)))
-		painter.setBrush(QtGui.QBrush(QtGui.QColor(221,248,255)))
+		painter.setPen(QtGui.QPen(QtGui.QColor(95,95,95)))
+
+		
+
+		gradient = QtGui.QLinearGradient(self.boundingRect().center().x(), self.boundingRect().bottom(), self.boundingRect().center().x(), self.boundingRect().top())
+		gradient.setColorAt(0, QtGui.QColor(50,50,50))
+		gradient.setColorAt(1, QtGui.QColor(100,100,100))
+
+		
+		brush = QtGui.QBrush(gradient)
+		painter.setBrush(brush)
 		painter.drawRoundedRect(self.x, self.y, self.width, self.height, 10, 10)
 
 		#painter.setPen(QtGui.QPen(QtGui.QColor(255,0,0)))
 		#painter.setBrush(QtGui.QBrush(Qt.NoBrush))
 		#painter.drawRect(self.boundingRect())
 
+		painter.setPen(QtGui.QPen(QtGui.QColor(255,255,255)))
 		titleRect = QtCore.QRect(self.boundingRect().left() + 10, self.boundingRect().top() + 10, 200, 50)
 		painter.drawText(titleRect, Qt.AlignLeft, self.title)
 
@@ -166,6 +185,7 @@ class IOPin(QtWidgets.QGraphicsItem):
 
 		self.orientation = orientation
 		self.setAcceptHoverEvents(True)
+		self.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable)
 
 
 		self.isBeingClickedOn = False
@@ -179,14 +199,14 @@ class IOPin(QtWidgets.QGraphicsItem):
 			painter.setBrush(QtGui.QBrush(self.fillColor_idle))
 		elif self.currentMode == "hover":
 			painter.setBrush(QtGui.QBrush(self.fillColor_hover))
-		painter.drawEllipse(QtCore.QRect(self.boundingRect().x(), self.boundingRect().y(), self.boundingRect().width(), self.boundingRect().height()))
+		painter.drawRect(QtCore.QRect(self.boundingRect().x(), self.boundingRect().y(), self.boundingRect().width(), self.boundingRect().height()))
 		#painter.drawRect(self.rect)
 
 		painter.setBrush(QtGui.QBrush(Qt.NoBrush))
 		painter.setPen(QtGui.QPen(QtGui.QColor(244,66,66)))
 		#painter.drawRect(self.boundingRect())
 
-		painter.setPen(QtGui.QPen(QtGui.QColor(0,0,0)))
+		painter.setPen(QtGui.QPen(QtGui.QColor(255,255,255)))
 		if self.orientation == "input":
 			textRect = QtCore.QRect(self.boundingRect().x() + self.margin(), self.boundingRect().y(), 200, self.boundingRect().height())
 			painter.drawText(textRect, Qt.AlignVCenter + Qt.AlignLeft, self.name)
@@ -209,7 +229,7 @@ class IOPin(QtWidgets.QGraphicsItem):
 		print("Node is being clicked on")
 		self.isBeingClickedOn = True
 
-		self.newConnection = NodeConnection(self.x, self.y, event.scenePos().x(), event.scenePos().y())
+		self.newConnection = NodeConnection(QtCore.QPointF(self.x + (self.rect.width()/2), self.y + (self.rect.height()/2)), event.scenePos())
 		self.scene().addItem(self.newConnection)
 		super(IOPin, self).mousePressEvent(event)
 
@@ -231,11 +251,12 @@ class IOPin(QtWidgets.QGraphicsItem):
 		super(IOPin, self).hoverLeaveEvent(event)
 
 	def mouseMoveEvent(self, event):
-		event.accept()
+		#event.accept()
 		print("moving over a pin")
 		if self.newConnection:
 			print("make a new pin connection")
-			self.newConnection.targetPos = event.scenePos()
+			self.newConnection.setTargetPos(event.scenePos())
+			#self.newConnection.paint()
 			#self.newConnection.updatePath()
 
 		
@@ -253,26 +274,42 @@ class IOPin(QtWidgets.QGraphicsItem):
 
 #################################
 #################################
+
 class NodeConnection(QtWidgets.QGraphicsLineItem):
-	def __init__(self, x1, y1, x2, y2, parent=None):
+	def __init__(self, sourcePos, targetPos, parent=None):
 		super(NodeConnection, self).__init__(parent)
-		self.x1 = x1
-		self.y1 = y1
-		self.x2 = x2
-		self.y2 = y2
 
-		self.sourcePos = QtCore.QPointF(self.x1, self.y1)
-		self.targetPos = QtCore.QPointF(self.x2, self.y2)
+		self.sourcePos = sourcePos
+		self.targetPos = targetPos
 
-	def paint(self, painter, option, widget):
-		self.setPen(QtGui.QPen(QtGui.QColor(0,0,0)))
-		#painter.drawLine(self.sourcePos.x(), self.sourcePos.y(), self.targetPos.x(), self.targetPos.y())
+		self.connectionColor = QtGui.QColor(65,65,65)
+		self.pen = QtGui.QPen()
+		self.pen.setColor(self.connectionColor)
+		self.pen.setWidth(10)
 
+		self.setPen(self.pen)
+
+	"""def paint(self, painter, option, widget):
+		pen = QtGui.QPen(QtGui.QColor(255,0,0))
+		brush = QtGui.QBrush(QtGui.QColor(0,0,0))
+		pen.setWidth(10)
+		#self.setPen(pen)
+
+		painter.setPen(pen)
+		#painter.drawLine(self.sourcePos, self.targetPos)
+
+		self.setPen(pen)
+		#self.setBrush(brush)
+		self.setWidth(100)
 		self.setLine(self.sourcePos.x(), self.sourcePos.y(), self.targetPos.x(), self.targetPos.y())
+		print("painting the node connection - should be happening A LOT")
 		print(self.targetPos)
+		#super(NodeConnection, self).paint(painter, option, widget)"""
 
-
-
+	def setTargetPos(self, newTargetPos):
+		self.targetPos = newTargetPos
+		self.setLine(QtCore.QLineF(self.sourcePos, self.targetPos))
+		print(self.line())
 		
 #################################
 #################################
