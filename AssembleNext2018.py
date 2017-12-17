@@ -21,9 +21,9 @@ class Window(QtWidgets.QMainWindow):
 
         testNode = Node("Add", 175, 100, -115, -170, ["Input 1", "Input 2"], ["Output"])
 
-        testNode2 = Node("Display", 175, 100, -140, -170, ["Input"], [])
+        testNode2 = Node("Display", 175, 100, -600, -170, ["Input"], [])
         self.nodeScene.addNode(testNode)
-        self.nodeScene.addNode(testNode2)
+        #self.nodeScene.addNode(testNode2)
 
         #testNodeOutlet = InputNode("hoohoo", 0, 0)
         #self.nodeScene.addItem(testNodeOutlet)
@@ -94,11 +94,14 @@ class Node(QtWidgets.QGraphicsItem):
 
 		self.isBeingDragged = False
 
+		self.previousMousePosition = QtCore.QPointF()
+
 	def EstablishInputsOutputs(self):
 		self.inputNodes = []
 		PinY = self.boundingRect().top() + 35
 		for inputname in self.inputs:
-			newInputNode = IOPin(inputname, self.x - 20, PinY, "input", parent=self)
+			print("start: place input pin at " + str(PinY))
+			newInputNode = IOPin(inputname, self.boundingRect().x() - 20, PinY, "input", parent=self)
 
 			self.inputNodes.append(newInputNode)
 			PinY += 30
@@ -108,12 +111,28 @@ class Node(QtWidgets.QGraphicsItem):
 		self.outputNodes = []
 		PinY = self.boundingRect().top() + 35
 		for outputname in self.outputs:
-			newOutputNode = IOPin(outputname, (self.x + self.width), PinY, "output", parent=self)
+			newOutputNode = IOPin(outputname, (self.boundingRect().x() + self.boundingRect().width()), PinY, "output", parent=self)
 
 			self.outputNodes.append(newOutputNode)
 			PinY += 30
 
 			self.scene().addItem(newOutputNode)
+
+	def recalculatePins(self):
+		PinY_2 = self.boundingRect().top() + 35
+		for inputpin in self.inputNodes:
+			print("place input pin at " + str(PinY_2))
+			inputpin.x = self.boundingRect().x() - 20
+			inputpin.y = PinY_2
+			PinY_2 += 30
+
+
+
+		PinY_2 = self.boundingRect().top() + 35
+		for outputpin in self.outputNodes:
+			inputpin.x = self.boundingRect().x() - 20
+			inputpin.y = PinY_2
+			PinY_2 += 30		
 
 	def paint(self, painter, option, widget):
 		painter.setPen(QtGui.QPen(QtGui.QColor(95,95,95)))
@@ -129,13 +148,26 @@ class Node(QtWidgets.QGraphicsItem):
 		painter.setBrush(brush)
 		painter.drawRoundedRect(self.x, self.y, self.width, self.height, 10, 10)
 
+
+		headerGradient = QtGui.QLinearGradient(self.boundingRect().center().x(), self.boundingRect().top() + 50, self.boundingRect().center().x(), self.boundingRect().top())
+		headerGradient.setColorAt(0, QtGui.QColor(28,79,160))
+		headerGradient.setColorAt(1, QtGui.QColor(39,103,206))
+
+		headerBrush = QtGui.QBrush(headerGradient)
+		painter.setBrush(headerBrush)
+		painter.setPen(QtGui.QPen(Qt.NoPen))
+		painter.drawRoundedRect(self.x, self.y, self.width, 30, 10, 10)
+
 		#painter.setPen(QtGui.QPen(QtGui.QColor(255,0,0)))
 		#painter.setBrush(QtGui.QBrush(Qt.NoBrush))
 		#painter.drawRect(self.boundingRect())
 
 		painter.setPen(QtGui.QPen(QtGui.QColor(255,255,255)))
-		titleRect = QtCore.QRect(self.boundingRect().left() + 10, self.boundingRect().top() + 10, 200, 50)
+		titleRect = QtCore.QRect(self.boundingRect().left() + 10, self.boundingRect().top() + 7, 200, 50)
 		painter.drawText(titleRect, Qt.AlignLeft, self.title)
+
+		painter.setPen(QtGui.QPen(QtGui.QColor(255,0,0)))
+		painter.drawPoint(self.scenePos())
 
 	def mousePressEvent(self, event):
 		event.accept()
@@ -149,14 +181,28 @@ class Node(QtWidgets.QGraphicsItem):
 
 	def mouseMoveEvent(self, event):
 		event.ignore()
-		#print("Move that bitch")
+		print("Dragging a node")
 
-		
+		currentMousePosition = event.scenePos()
+
+		mousePosVector = currentMousePosition - self.previousMousePosition
+
+
+		newX = event.scenePos().x()
+		newY = event.scenePos().y()
+
+
+		#self.setPos(self.scenePos() + mousePosVector)
+
+		#self.recalculatePins()
+
+		self.previousMousePosition = currentMousePosition
+
 		super(Node, self).mouseMoveEvent(event)
 
 	def hoverEnterEvent(self, event):
 		event.accept()
-		print("Node is being hovered over, like a fearful mother")
+		#print("Node is being hovered over, like a fearful mother")
 		super(Node, self).hoverEnterEvent(event)
 
 		
@@ -176,6 +222,8 @@ class IOPin(QtWidgets.QGraphicsItem):
 		self.y = y
 		self.rect = QtCore.QRect(x, y, 20, 20)
 
+		self.parent = parent
+
 		self.name = name
 
 		self.currentMode = "idle"
@@ -192,6 +240,9 @@ class IOPin(QtWidgets.QGraphicsItem):
 
 		self.newConnection = None
 
+		self.parent = parent
+		self.setParentItem(self.parent)
+
 	def paint(self, painter, option, widget):
 		painter.setPen(QtGui.QPen(Qt.NoPen))
 
@@ -199,7 +250,7 @@ class IOPin(QtWidgets.QGraphicsItem):
 			painter.setBrush(QtGui.QBrush(self.fillColor_idle))
 		elif self.currentMode == "hover":
 			painter.setBrush(QtGui.QBrush(self.fillColor_hover))
-		painter.drawRect(QtCore.QRect(self.boundingRect().x(), self.boundingRect().y(), self.boundingRect().width(), self.boundingRect().height()))
+		painter.drawRect(QtCore.QRect(self.x, self.y, self.boundingRect().width(), self.boundingRect().height()))
 		#painter.drawRect(self.rect)
 
 		painter.setBrush(QtGui.QBrush(Qt.NoBrush))
@@ -218,8 +269,6 @@ class IOPin(QtWidgets.QGraphicsItem):
 			textRect.setRight(self.boundingRect().x() - (self.margin() - 20))
 			painter.drawText(textRect, Qt.AlignVCenter + Qt.AlignRight, self.name)
 		
-		
-			#painter.drawRect(textRect)
 
 	def margin(self):
 		return ((self.boundingRect().width() / 2) + 20)
@@ -229,7 +278,7 @@ class IOPin(QtWidgets.QGraphicsItem):
 		print("Node is being clicked on")
 		self.isBeingClickedOn = True
 
-		self.newConnection = NodeConnection(QtCore.QPointF(self.x + (self.rect.width()/2), self.y + (self.rect.height()/2)), event.scenePos())
+		self.newConnection = NodeConnection(QtCore.QPointF(self.x + 10, self.y + 10), event.scenePos(), parent=self)
 		self.scene().addItem(self.newConnection)
 		super(IOPin, self).mousePressEvent(event)
 
@@ -252,10 +301,10 @@ class IOPin(QtWidgets.QGraphicsItem):
 
 	def mouseMoveEvent(self, event):
 		#event.accept()
-		print("moving over a pin")
+		#print("moving over a pin")
 		if self.newConnection:
-			print("make a new pin connection")
-			self.newConnection.setTargetPos(event.scenePos())
+			#print("make a new pin connection")
+			self.newConnection.setTargetPos(event.pos())
 			#self.newConnection.paint()
 			#self.newConnection.updatePath()
 
