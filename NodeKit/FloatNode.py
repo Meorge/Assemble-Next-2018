@@ -14,15 +14,16 @@ class FloatNode(nl.Node):
 
 		self.outputPinData = [
 		{
-			"viewerName": "Value",
+			"viewerName": "",
 			"varType": "float",
-			"varName": "value"
+			"varName": "fvalue"
 		}
 		]
 
 		self.inputWidgetData = [
 		{
-			"varType": "float"
+			"varType": "float",
+			"varName": "fvalue"
 		}]
-		self.width = 175
+		self.width = 90
 		self.height = 70

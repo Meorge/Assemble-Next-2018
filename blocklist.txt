@@ -1,0 +1,54 @@
+List of necessary blocks:
+
+	- Transform
+		- Set position
+			- Set position x
+			- Set position y
+			- Set position z
+		- Set rotation
+			- Set rotation X
+			- Set rotation Y
+			- Set rotation Z
+		- Set scale
+			- Set scale X
+			- Set scale Y
+			- Set scale Z
+		- Translate
+			- Translate on X axis
+			- Translate on Y axis
+			- Translate on Z axis
+		- Rotate
+			- Rotate on X axis
+			- Rotate on Y axis
+			- Rotate on Z axis
+		- Scale
+			- Scale on X axis
+			- Scale on Y axis
+			- Scale on Z axis
+		- Delete object
+
+	- Effects
+		- Play a sound effect
+		- Spawn a visual effect
+
+	- Active Physics
+		- X distance to center
+		- Y distance to center
+		- X distance to edge
+		- Y distance to edge
+		- "category1"
+		- "category2"
+		- "bitfield1"
+		- "bitfield2"
+		- "unkShort1C"
+		- "callback"
+
+	- Math
+		- Vector3
+		- Float
+		- Integer
+		- some other things probably
+
+	- Models & Textures
+		- Set up model from BRRES file
+
