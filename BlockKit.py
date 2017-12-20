@@ -26,10 +26,15 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 		self.TitleLabel = QtWidgets.QLabel(self.title)
 		newLayout = QtWidgets.QHBoxLayout()
 
-		newLayout.addWidget(self.TitleLabel)
+		#newLayout.addWidget(self.TitleLabel)
 
 
 		for inputItem in self.inputs:
+			if inputItem["inputType"] == "label":
+				newLabel = QtWidgets.QLabel(inputItem["labelText"])
+				newLayout.addWidget(newLabel)
+				inputItem["inputWidget"] = newLabel
+
 			if inputItem["inputType"] == "float":
 				#newLabel = QtWidgets.QLabel(inputItem["inputName"])
 				newSpinBox = QtWidgets.QSpinBox()
@@ -46,6 +51,14 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 				newCombo.addItems(self.listOfInputs)
 
 				print(self.listOfInputs)
+				newLayout.addWidget(newCombo)
+
+				inputItem["inputWidget"] = newCombo
+
+			elif inputItem["inputType"] == "actorAP":
+				newCombo = ActorAPComboBox(parent=self.parent)
+
+				newCombo.populateItems()
 				newLayout.addWidget(newCombo)
 
 				inputItem["inputWidget"] = newCombo
@@ -74,15 +87,26 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 	def CPPCodeComposite(self):
 		compositeCPP = self.CPPCode
 		for inputItem in self.inputs:
-
 			inputVar = inputItem["internalName"]
 			inputWidget = inputItem["inputWidget"]
 
-			if inputItem["inputType"] == "float":
-				compositeCPP = compositeCPP.replace(inputVar, str(inputWidget.value()))
+			if inputItem["inputType"] == "actorAP":
+				compositeCPP = compositeCPP.replace(inputVar, str(inputWidget.codeValue))
 
-			elif inputItem["inputType"] == "editableCombo":
-				compositeCPP = compositeCPP.replace(inputVar, str(inputWidget.currentText()))
+			try:
+				
+				
+
+				if inputItem["inputType"] == "float":
+					compositeCPP = compositeCPP.replace(inputVar, str(inputWidget.value()))
+
+				elif inputItem["inputType"] == "editableCombo":
+					compositeCPP = compositeCPP.replace(inputVar, str(inputWidget.currentText()))
+
+
+
+			except:
+				pass
 
 		return compositeCPP
 
@@ -204,3 +228,35 @@ class BlockListItemSource(QtWidgets.QTreeWidget):
 class BlockListItemSourceModel(QtCore.QAbstractItemModel):
 	def __init__(self, parent=None):
 		super(BlockListItemSourceModel, self).__init__(parent)
+
+class ActorAPComboBox(QtWidgets.QComboBox):
+	def __init__(self, parent=None):
+		super(ActorAPComboBox, self).__init__(parent)
+		self.parent = parent
+
+		self.codeValue = ""
+
+		self.currentIndexChanged.connect(self.updateCodeValue)
+
+	def populateItems(self):
+		if self.parent == None:
+			print("This combo box can't find its parent QTreeWidget; therefore it cannot populate.")
+			return
+
+		if self.parent.parent == None:
+			print("This combo box can't find the main class; therefore it cannot populate.")
+			return
+
+		print(self.parent.parent.currentCPPClass.validTransformArgs)
+
+		self.validTransformArgs = self.parent.parent.currentCPPClass.validTransformArgs
+
+		for i in self.validTransformArgs:
+			self.addItem(i["argVisibleName"])
+
+	def updateCodeValue(self, index):
+		print(index)
+		self.codeValue = self.validTransformArgs[index]["argCodeValue"]
+		print(self.codeValue)
+
+		

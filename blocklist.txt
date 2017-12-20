@@ -1,9 +1,5 @@
 List of necessary blocks:
 
-	- Effects
-		- Play a sound effect
-		- Spawn a visual effect
-
 	- Active Physics
 		- X distance to center
 		- Y distance to center
@@ -53,3 +49,7 @@ Done:
 			- Scale on Y axis
 			- Scale on Z axis
 		- Delete object
+		
+	- Effects
+		- Play a sound effect
+		- Spawn a visual effect

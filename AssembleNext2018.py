@@ -31,6 +31,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.mainCodeView.setFont(self.mainCodeViewFont)
         self.mainCodeView.setReadOnly(True)
 
+        self.setMinimumSize(1200,600)
+
         self.layout = QtWidgets.QSplitter()
 
         #self.layout = QtWidgets.QHBoxLayout()
@@ -40,6 +42,9 @@ class MainWindow(QtWidgets.QMainWindow):
         #self.mainWidget = QtWidgets.QWidget()
         #self.mainWidget.setLayout(self.layout)
         self.setCentralWidget(self.layout)
+
+
+        self.currentCPPClass = playerCollisionClass(parent=self)
 
         #test1 = TranslateXBlock(parent=self.mainCodeTree)
 
@@ -53,24 +58,55 @@ class MainWindow(QtWidgets.QMainWindow):
         {
             "categoryName": "Transform",
             "categoryBlocks": [
-                TranslateXBlock,
-                TranslateYBlock,
-                TranslateZBlock,
-                RotateXBlock,
-                RotateYBlock,
-                RotateZBlock,
-                ScaleXBlock,
-                ScaleYBlock,
-                ScaleZBlock,
-                SetPosXBlock,
-                SetPosYBlock,
-                SetPosZBlock,
-                SetRotXBlock,
-                SetRotYBlock,
-                SetRotZBlock,
-                SetScaleXBlock,
-                SetScaleYBlock,
-                SetScaleZBlock,
+                {
+                    "parent": TranslateXYZBlock,
+                    "children": [
+                        TranslateXBlock,
+                        TranslateYBlock,
+                        TranslateZBlock
+                    ]
+                },
+                {
+                    "parent": RotateXYZBlock,
+                    "children": [
+                        RotateXBlock,
+                        RotateYBlock,
+                        RotateZBlock
+                        ]
+                },
+                {
+                    "parent": ScaleXYZBlock,
+                    "children": [
+                        ScaleXBlock,
+                        ScaleYBlock,
+                        ScaleZBlock
+                        ]
+                },
+                {
+                    "parent": SetPosXYZBlock,
+                    "children": [
+                        SetPosXBlock,
+                        SetPosYBlock,
+                        SetPosZBlock
+                        ]
+                },
+                {
+                    "parent": SetRotXYZBlock,
+                    "children": [
+                        SetRotXBlock,
+                        SetRotYBlock,
+                        SetRotZBlock
+                    ]
+                },
+                {
+                    "parent": SetScaleXYZBlock,
+                    "children": [
+                        SetScaleXBlock,
+                        SetScaleYBlock,
+                        SetScaleZBlock
+                    ]
+                },
+
                 DeleteObjectBlock
 
             ]
@@ -126,30 +162,38 @@ class MainWindow(QtWidgets.QMainWindow):
         self.toolboxCategoryChanged(0)
 
     def toolboxCategoryChanged(self, index):
-        print("\n\n\n")
-        print("Starting to refresh the page")
-        print("Index is " + str(index))
+        #print("\n\n\n")
+        #print("Starting to refresh the page")
+        #print("Index is " + str(index))
 
         numberOfBlocks = self.toolbox_TreeList.invisibleRootItem().childCount()
-        print("We should be deleting " + str(numberOfBlocks) + " items (same as the previous count)")
+        #print("We should be deleting " + str(numberOfBlocks) + " items (same as the previous count)")
         """for itemNo in range(numberOfBlocks):
             print(self.toolbox_TreeList.takeTopLevelItem(itemNo))
             #print("removing an item")"""
         self.toolbox_TreeList.clear()
 
-        print("Current child count is " + str(self.toolbox_TreeList.invisibleRootItem().childCount()) + "; it should be 0")
+        #print("Current child count is " + str(self.toolbox_TreeList.invisibleRootItem().childCount()) + "; it should be 0")
 
         BlockList = []
         BlockList = self.blockList[index]["categoryBlocks"]
-        print("There are " + str(len(BlockList)) + " items in this list of blocks")
+        #print("There are " + str(len(BlockList)) + " items in this list of blocks")
         for block in BlockList:
-            NewBlockListItem = BlockKit.BlockListItem(block().title, block)
-            self.toolbox_TreeList.addTopLevelItem(NewBlockListItem)
 
-            print("Added the block with title: " + block().title)
+            if type(block) is dict:
+                NewBlockListItem = BlockKit.BlockListItem(block["parent"]().title, block["parent"])
+                self.toolbox_TreeList.addTopLevelItem(NewBlockListItem)
+                for subblock in block["children"]:
+                    NewSubBlockListItem = BlockKit.BlockListItem(subblock().title, subblock)
+                    NewBlockListItem.addChild(NewSubBlockListItem)
+
+            else:
+                NewBlockListItem = BlockKit.BlockListItem(block().title, block)
+                self.toolbox_TreeList.addTopLevelItem(NewBlockListItem)
+            #print("Added the block with title: " + block().title)
 
         
-        print("Done refreshing the page")
+        #print("Done refreshing the page")
 
     def addBlockFromList(self):
         currentlySelectedBlock = self.toolbox_TreeList.currentItem().blockClass(parent=self.mainCodeTree)
@@ -194,8 +238,25 @@ class MainWindow(QtWidgets.QMainWindow):
 #################################
 #################################
 
+class NewerCPPClass(object):
+    validTransformArgs = []
+    def __init__(self, parent=None):
+        pass
 
         
+class playerCollisionClass(NewerCPPClass):
+    def __init__(self, parent=None):
+        self.validTransformArgs = [
+        {
+            "argVisibleName": "this actor",
+            "argCodeValue": "this",
+
+        },
+        {
+            "argVisibleName": "colliding actor",
+            "argCodeValue": "&apOther->owner"
+        }]
+
 #################################
 #################################
 

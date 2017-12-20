@@ -29,6 +29,11 @@ class SoundEffectBlock(BasicEffectBlock):
 		
 		self.setInputs([
 			{
+				"inputType": "label",
+				"labelText": "Play sound effect",
+				"internalName": "label1"
+			},
+			{
 				"inputName": "SFX",
 				"inputType": "editableCombo",
 				"inputOptions": self.listOfInputs,
@@ -51,6 +56,11 @@ class VisualEffectBlock(BasicEffectBlock):
 
 		
 		self.setInputs([
+			{
+				"inputType": "label",
+				"labelText": "Play visual effect",
+				"internalName": "label1"
+			},
 			{
 				"inputName": "VFX",
 				"inputType": "editableCombo",
