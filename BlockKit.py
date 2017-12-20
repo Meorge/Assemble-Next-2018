@@ -15,7 +15,8 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 
 		self.CPPCode = "No CPP code loaded" # will be overwritten by the code that this 
 
-		self.setupData()
+		if parent:
+			self.setupData()
 
 	def setupData(self):
 		#self.setText(0, self.title)
@@ -69,7 +70,6 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 		return compositeCPP
 
 	def setIsCurrentSelection(self, isSelected):
-
 		if isSelected:
 			print("Setting block with title " + self.title + " as current selection")
 			self.TitleLabel.setStyleSheet("QLabel {color: white;}")
@@ -80,7 +80,12 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 	def setTint(self):
 		brush = QtGui.QBrush(self.backgroundTint)
 		self.setBackground(0, brush)
+		self.setBackground(-1, brush)
 		print("IT HATH BEEN DONE")
+
+	def mimeData(self):
+		newMimeData = QtCore.QMimeData()
+		newMimeData.setData("AN2018Block", self)
 
 class BlockTreeWidget(QtWidgets.QTreeWidget):
 	def __init__(self, parent=None):
@@ -89,6 +94,12 @@ class BlockTreeWidget(QtWidgets.QTreeWidget):
 		self.parent = parent
 		self.currentItemChanged.connect(self.itemChanged)
 		self.setCurrentItem(None)
+
+		self.setAcceptDrops(True)
+		self.setDragEnabled(True)
+		#self.setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
+		self.setHeaderHidden(True)
+
 		self.setupAddBox()
 
 	def setupAddBox(self):
@@ -126,3 +137,42 @@ class BlockTreeWidget(QtWidgets.QTreeWidget):
 			previous.setIsCurrentSelection(False)
 		except:
 			pass
+
+	def dragEnterEvent(self, event):
+		event.acceptProposedAction()
+
+	def dropEvent(self, event):
+		event.acceptProposedAction()
+		#print("drop event")
+		print(event.mimeData().data("AN2018Block"))
+
+	def dropMimeData(self, parent, index, data, action):
+		print(parent.title)
+
+	def mousePressEvent(self, event):
+		try:
+			self.currentItem().setIsCurrentSelection(False)
+		except:
+			pass
+		self.clearSelection()
+		QtWidgets.QTreeWidget.mousePressEvent(self, event)
+
+class BlockListItem(QtWidgets.QTreeWidgetItem):
+	def __init__(self, name, blockClass, parent=None):
+		super(BlockListItem, self).__init__(parent)
+
+		self.name = name
+		self.blockClass = blockClass
+		self.setText(0, self.name)
+
+
+class BlockListItemSource(QtWidgets.QTreeWidget):
+	def __init__(self, parent=None):
+		super(BlockListItemSource, self).__init__(parent)
+
+		self.setDragEnabled(True)
+		self.setHeaderHidden(True)
+
+class BlockListItemSourceModel(QtCore.QAbstractItemModel):
+	def __init__(self, parent=None):
+		super(BlockListItemSourceModel, self).__init__(parent)

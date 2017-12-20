@@ -22,6 +22,7 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).__init__(parent)
 
         self.mainCodeTree = BlockKit.BlockTreeWidget(parent=self)
+        self.mainCodeTree.setAttribute(Qt.WA_MacShowFocusRect, 0)
 
         self.mainCodeView = QtWidgets.QPlainTextEdit()
         self.mainCodeViewFont = QtGui.QFont("Menlo")
@@ -29,13 +30,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.mainCodeView.setFont(self.mainCodeViewFont)
         self.mainCodeView.setReadOnly(True)
 
-        self.layout = QtWidgets.QHBoxLayout()
+        self.layout = QtWidgets.QSplitter()
+
+        #self.layout = QtWidgets.QHBoxLayout()
         self.layout.addWidget(self.mainCodeTree)
         self.layout.addWidget(self.mainCodeView)
 
-        self.mainWidget = QtWidgets.QWidget()
-        self.mainWidget.setLayout(self.layout)
-        self.setCentralWidget(self.mainWidget)
+        #self.mainWidget = QtWidgets.QWidget()
+        #self.mainWidget.setLayout(self.layout)
+        self.setCentralWidget(self.layout)
 
         test1 = TranslateXBlock(parent=self.mainCodeTree)
 
@@ -45,18 +48,37 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.CPPBuffer = """"""
 
-        self.nodeList = [
+        self.blockList = [
         {
-	        "categoryName": "Transform",
-	        "categoryBlocks": [
-			        TranslateXBlock(),
-			        TranslateYBlock(),
-			        TranslateZBlock(),
-			        RotateXBlock(),
-			        RotateYBlock(),
-			        RotateZBlock(),
-			        ScaleXBlock()
-		        ]
+            "categoryName": "Transform",
+            "categoryBlocks": [
+                    TranslateXBlock,
+                    TranslateYBlock,
+                    TranslateZBlock,
+                    RotateXBlock,
+                    RotateYBlock,
+                    RotateZBlock,
+                    ScaleXBlock,
+                    ScaleYBlock,
+                    ScaleZBlock,
+                    SetPosXBlock,
+                    SetPosYBlock,
+                    SetPosZBlock,
+                    SetRotXBlock,
+                    SetRotYBlock,
+                    SetRotZBlock,
+                    SetScaleXBlock,
+                    SetScaleYBlock,
+                    SetScaleZBlock,
+                    DeleteObjectBlock
+
+                ]
+        },
+        {
+            "categoryName": "Other",
+            "categoryBlocks": [
+                    RotateZBlock
+                ]
         }]
 
         self.setupStatusBar()
@@ -67,30 +89,78 @@ class MainWindow(QtWidgets.QMainWindow):
         self.toolboxDockWidget = QtWidgets.QDockWidget()
         #self.toolboxDockWidget.setTitle("Toolbox")
         #self.toolboxDockWidget.setWidget()
+
+        self.toolbox_TabWidget = QtWidgets.QTabWidget()
+
+        self.toolbox_ComboBox = QtWidgets.QComboBox()
+
+        self.toolbox_TreeList = BlockKit.BlockListItemSource()
+
+        self.toolbox_AddNodeButton = QtWidgets.QPushButton("Add Node")
+        self.toolbox_AddNodeButton.clicked.connect(self.addBlockFromList)
+
+        for category in self.blockList:
+            self.toolbox_ComboBox.addItem(category["categoryName"])
+
+        #self.toolboxDockWidget.setTitleBarWidget(self.toolbox_ComboBox)
+        self.toolbox_Layout = QtWidgets.QVBoxLayout()
+        self.toolbox_Layout.addWidget(self.toolbox_ComboBox)
+        self.toolbox_Layout.addWidget(self.toolbox_TreeList)
+        self.toolbox_Layout.addWidget(self.toolbox_AddNodeButton)
+        self.toolbox_Widget = QtWidgets.QWidget()
+        self.toolbox_Widget.setLayout(self.toolbox_Layout)
+
+        self.toolboxDockWidget.setWidget(self.toolbox_Widget)
+
+        self.toolbox_ComboBox.currentIndexChanged.connect(self.toolboxCategoryChanged)
+
         self.addDockWidget(Qt.RightDockWidgetArea, self.toolboxDockWidget)
 
-    def setupStatusBar(self):
-    	self.statusBar = QtWidgets.QStatusBar()
-    	self.setStatusBar(self.statusBar)
+        self.toolboxCategoryChanged(0)
 
-    	self.generateCodeButton = QtWidgets.QPushButton("Generate C++ Code")
-    	self.generateCodeButton.clicked.connect(self.generateCPP)
-    	self.statusBar.addWidget(self.generateCodeButton)
+    def toolboxCategoryChanged(self, index):
+        numberOfBlocks = self.toolbox_TreeList.invisibleRootItem().childCount()
+
+        for itemNo in range(numberOfBlocks):
+            self.toolbox_TreeList.takeTopLevelItem(itemNo)
+
+        BlockList = []
+        BlockList = self.blockList[index]["categoryBlocks"]
+        print("Found it")
+
+
+        for block in BlockList:
+            NewBlockListItem = BlockKit.BlockListItem(block().title, block)
+            self.toolbox_TreeList.addTopLevelItem(NewBlockListItem)
+
+        print(BlockList)
+
+    def addBlockFromList(self):
+        currentlySelectedBlock = self.toolbox_TreeList.currentItem().blockClass(parent=self.mainCodeTree)
+        self.mainCodeTree.addBlock(currentlySelectedBlock)
+
+    def setupStatusBar(self):
+        self.statusBar = QtWidgets.QStatusBar()
+        self.setStatusBar(self.statusBar)
+
+        self.generateCodeButton = QtWidgets.QPushButton("Generate C++ Code")
+        self.generateCodeButton.clicked.connect(self.generateCPP)
+        self.statusBar.addWidget(self.generateCodeButton)
 
 
     def generateCPP(self):
-    	self.CPPBuffer = """"""
-    	
-    	invisibleroot = self.mainCodeTree.invisibleRootItem()
-    	child_count = invisibleroot.childCount()
+        self.CPPBuffer = """"""
+        
+        invisibleroot = self.mainCodeTree.invisibleRootItem()
+        child_count = invisibleroot.childCount()
 
-    	for itemNo in range(child_count):
-    		item = invisibleroot.child(itemNo)
-    		print(item.title)
-    		self.CPPBuffer += "\t" + item.CPPCodeComposite() + "\n"
+        for itemNo in range(child_count):
+            item = invisibleroot.child(itemNo)
+            print(item.title)
+            self.CPPBuffer += "\t" + item.CPPCodeComposite() + "\n"
 
-    	self.CPPBufferWithHeaderFooter = "int assembleNextTestSprite::onExecute() {\n" + self.CPPBuffer + "\treturn true;\n}"
-    	self.mainCodeView.setPlainText(self.CPPBufferWithHeaderFooter)
+        self.CPPBufferWithHeaderFooter = "int assembleNextTestSprite::onExecute() {\n" + self.CPPBuffer + "\treturn true;\n}"
+        self.mainCodeView.setPlainText(self.CPPBufferWithHeaderFooter)
 
     def setupNodeView(self):
         self.nodeView = nl.NodeView()
@@ -109,7 +179,7 @@ class MainWindow(QtWidgets.QMainWindow):
 #################################
 
 
-		
+        
 #################################
 #################################
 
