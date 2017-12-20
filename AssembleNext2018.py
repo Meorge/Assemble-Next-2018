@@ -17,6 +17,8 @@ import BlockKit
 from ANBlocks.TransformationBlocks import *
 from ANBlocks.EffectBlocks import *
 
+from ANClasses.SpriteClass import *
+
 class MainWindow(QtWidgets.QMainWindow):
     
     def __init__(self, parent=None):
@@ -33,18 +35,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.setMinimumSize(1200,600)
 
-        self.layout = QtWidgets.QSplitter()
+        self.currentCPPClass = NewerCPPClass_Sprite(parent=self)
+        self.currentCPPFunction = preSpriteCollision()
 
-        #self.layout = QtWidgets.QHBoxLayout()
-        self.layout.addWidget(self.mainCodeTree)
-        self.layout.addWidget(self.mainCodeView)
+        #self.layout.addWidget(self.mainCodeView)
 
-        #self.mainWidget = QtWidgets.QWidget()
-        #self.mainWidget.setLayout(self.layout)
-        self.setCentralWidget(self.layout)
-
-
-        self.currentCPPClass = playerCollisionClass(parent=self)
+        self.setCentralWidget(self.mainCodeTree)
 
         #test1 = TranslateXBlock(parent=self.mainCodeTree)
 
@@ -126,10 +122,58 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.setupStatusBar()
         self.setupToolbox()
+        self.setupOutlineBox()
+
+
+    def setupOutlineBox(self):
+        self.CPPFunctionOutline_DockW = QtWidgets.QDockWidget()
+        self.CPPFunctionOutline_DockW.setWindowTitle("Outline")
+
+        self.CPPFunctionOutline = OutlineTreeWidget()
+        self.CPPFunctionOutline.currentItemChanged.connect(self.outlineItemChanged)
+        self.CPPFunctionOutline.setHeaderHidden(True)
+        self.CPPFunctionOutline.setMaximumWidth(300)
+
+        self.rootOutlineItem = QtWidgets.QTreeWidgetItem()
+        self.rootOutlineItem.setText(0, "assembleNextTestSprite")
+        self.CPPFunctionOutline.addTopLevelItem(self.rootOutlineItem)
+
+        for category in self.currentCPPClass.functions:
+            newCategoryItem = QtWidgets.QTreeWidgetItem()
+            newCategoryItem.setText(0, category["categoryName"])
+            self.rootOutlineItem.addChild(newCategoryItem)
+
+            for func in category["categoryFuncs"]:
+                newFuncItem = OutlineTreeWidgetItem_Func(func=func)
+                newFuncItem.setText(0, func().title)
+                newCategoryItem.addChild(newFuncItem)
+
+        self.CPPFunctionOutline_DockW.setWidget(self.CPPFunctionOutline)
+        self.addDockWidget(Qt.LeftDockWidgetArea, self.CPPFunctionOutline_DockW)
+
+    def outlineItemChanged(self, current, previous):
+        if type(current) is not OutlineTreeWidgetItem_Func:
+            return
+
+        self.currentCPPFunction = current.func
+        print("We should have changed the function successfully")
+
+        blockList = []
+        for i in range(0, self.mainCodeTree.invisibleRootItem().childCount()):
+            blockList.append(self.mainCodeTree.invisibleRootItem().child(i))
+
+        current.func.blocks = blockList
+        self.mainCodeTree.clear()
+
+        for block in current.func.blocks:
+            self.mainCodeTree.addBlock(block)
+
+        self.setWindowTitle("TestSpriteName - " + self.currentCPPFunction().title + " - Assemble Next 2018")
 
 
     def setupToolbox(self):
         self.toolboxDockWidget = QtWidgets.QDockWidget()
+        self.toolboxDockWidget.setWindowTitle("Toolbox")
         #self.toolboxDockWidget.setTitle("Toolbox")
         #self.toolboxDockWidget.setWidget()
 
@@ -160,6 +204,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, self.toolboxDockWidget)
 
         self.toolboxCategoryChanged(0)
+        return
 
     def toolboxCategoryChanged(self, index):
         #print("\n\n\n")
@@ -192,6 +237,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.toolbox_TreeList.addTopLevelItem(NewBlockListItem)
             #print("Added the block with title: " + block().title)
 
+        return
         
         #print("Done refreshing the page")
 
@@ -205,7 +251,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.generateCodeButton = QtWidgets.QPushButton("Generate C++ Code")
         self.generateCodeButton.clicked.connect(self.generateCPP)
-        self.statusBar.addWidget(self.generateCodeButton)
+        #self.statusBar.addWidget(self.generateCodeButton)
 
 
     def generateCPP(self):
@@ -219,7 +265,7 @@ class MainWindow(QtWidgets.QMainWindow):
             #print(item.title)
             self.CPPBuffer += "\t" + item.CPPCodeComposite() + "\n"
 
-        self.CPPBufferWithHeaderFooter = "int assembleNextTestSprite::playerCollision(ActivePhysics *apThis, ActivePhysics *apOther) {\n" + self.CPPBuffer + "}"
+        self.CPPBufferWithHeaderFooter = self.currentCPPClass.header + self.CPPBuffer + self.currentCPPClass.footer
         self.mainCodeView.setPlainText(self.CPPBufferWithHeaderFooter)
 
     def setupNodeView(self):
@@ -238,25 +284,16 @@ class MainWindow(QtWidgets.QMainWindow):
 #################################
 #################################
 
-class NewerCPPClass(object):
-    validTransformArgs = []
+class OutlineTreeWidget(QtWidgets.QTreeWidget):
     def __init__(self, parent=None):
-        pass
-
+        super(OutlineTreeWidget, self).__init__(parent)
         
-class playerCollisionClass(NewerCPPClass):
-    def __init__(self, parent=None):
-        self.validTransformArgs = [
-        {
-            "argVisibleName": "this actor",
-            "argCodeValue": "this",
 
-        },
-        {
-            "argVisibleName": "colliding actor",
-            "argCodeValue": "&apOther->owner"
-        }]
-
+class OutlineTreeWidgetItem_Func(QtWidgets.QTreeWidgetItem):
+    def __init__(self, func=None, parent=None):
+        super(OutlineTreeWidgetItem_Func, self).__init__(parent)
+        self.func = func
+        
 #################################
 #################################
 

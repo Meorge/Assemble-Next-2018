@@ -49,8 +49,6 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 				newCombo.setEditable(True)
 				
 				newCombo.addItems(self.listOfInputs)
-
-				print(self.listOfInputs)
 				newLayout.addWidget(newCombo)
 
 				inputItem["inputWidget"] = newCombo
@@ -150,6 +148,7 @@ class BlockTreeWidget(QtWidgets.QTreeWidget):
 		self.setDragEnabled(True)
 		#self.setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
 		self.setHeaderHidden(True)
+		self.setRootIsDecorated(False)
 
 		self.setupAddBox()
 
@@ -247,12 +246,16 @@ class ActorAPComboBox(QtWidgets.QComboBox):
 			print("This combo box can't find the main class; therefore it cannot populate.")
 			return
 
-		print(self.parent.parent.currentCPPClass.validTransformArgs)
+		print(self.parent.parent.currentCPPFunction())
+		print(self.parent.parent.currentCPPFunction().title)
+		print("Valid transform args: " + str(self.parent.parent.currentCPPFunction().validTransformArgs))
 
-		self.validTransformArgs = self.parent.parent.currentCPPClass.validTransformArgs
+		self.validTransformArgs = self.parent.parent.currentCPPFunction().validTransformArgs
 
 		for i in self.validTransformArgs:
 			self.addItem(i["argVisibleName"])
+
+		return
 
 	def updateCodeValue(self, index):
 		print(index)
