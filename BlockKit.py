@@ -15,6 +15,8 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 
 		self.CPPCode = "No CPP code loaded" # will be overwritten by the code that this 
 
+		self.listOfInputs = ["wubba", "lubba"]
+
 		if parent:
 			self.setupData()
 
@@ -36,6 +38,17 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 				newLayout.addWidget(newSpinBox)
 
 				inputItem["inputWidget"] = newSpinBox
+
+			elif inputItem["inputType"] == "editableCombo":
+				newCombo = QtWidgets.QComboBox()
+				newCombo.setEditable(True)
+				
+				newCombo.addItems(self.listOfInputs)
+
+				print(self.listOfInputs)
+				newLayout.addWidget(newCombo)
+
+				inputItem["inputWidget"] = newCombo
 
 		self.itemWidget = QtWidgets.QWidget()
 		self.itemWidget.setLayout(newLayout)
@@ -61,31 +74,45 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 	def CPPCodeComposite(self):
 		compositeCPP = self.CPPCode
 		for inputItem in self.inputs:
-			if inputItem["inputType"] == "float":
-				inputWidget = inputItem["inputWidget"]
-				inputVar = inputItem["internalName"]
 
+			inputVar = inputItem["internalName"]
+			inputWidget = inputItem["inputWidget"]
+
+			if inputItem["inputType"] == "float":
 				compositeCPP = compositeCPP.replace(inputVar, str(inputWidget.value()))
+
+			elif inputItem["inputType"] == "editableCombo":
+				compositeCPP = compositeCPP.replace(inputVar, str(inputWidget.currentText()))
 
 		return compositeCPP
 
 	def setIsCurrentSelection(self, isSelected):
 		if isSelected:
-			print("Setting block with title " + self.title + " as current selection")
+			#print("Setting block with title " + self.title + " as current selection")
 			self.TitleLabel.setStyleSheet("QLabel {color: white;}")
 		else:
-			print("Setting block with title " + self.title + " as not selected")
+			#print("Setting block with title " + self.title + " as not selected")
 			self.TitleLabel.setStyleSheet("QLabel {color: black;}")
 
 	def setTint(self):
 		brush = QtGui.QBrush(self.backgroundTint)
 		self.setBackground(0, brush)
 		self.setBackground(-1, brush)
-		print("IT HATH BEEN DONE")
 
 	def mimeData(self):
 		newMimeData = QtCore.QMimeData()
 		newMimeData.setData("AN2018Block", self)
+
+
+	def populateListOfInputs(self, path):
+		list = []
+		with open(path, "r") as file:
+			list = file.readlines()
+
+		for i in list:
+			self.listOfInputs.append(i.rstrip())
+
+		return
 
 class BlockTreeWidget(QtWidgets.QTreeWidget):
 	def __init__(self, parent=None):
@@ -116,7 +143,7 @@ class BlockTreeWidget(QtWidgets.QTreeWidget):
 		
 		#self.addTopLevelItem(self.addBlockItem)
 		self.setItemWidget(self.addBlockItem, 0, self.addBlockItem_Widget)
-		print("the pasta is ready")
+		#print("the pasta is ready")
 
 		return
 
@@ -132,7 +159,7 @@ class BlockTreeWidget(QtWidgets.QTreeWidget):
 			current.setIsCurrentSelection(True)
 		except:
 			pass
-		print("AAAA")
+		#print("AAAA")
 		try:
 			previous.setIsCurrentSelection(False)
 		except:
@@ -147,7 +174,8 @@ class BlockTreeWidget(QtWidgets.QTreeWidget):
 		print(event.mimeData().data("AN2018Block"))
 
 	def dropMimeData(self, parent, index, data, action):
-		print(parent.title)
+		#print(parent.title)
+		pass
 
 	def mousePressEvent(self, event):
 		try:

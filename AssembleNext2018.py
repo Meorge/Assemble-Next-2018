@@ -15,6 +15,7 @@ Qt = QtCore.Qt
 
 import BlockKit
 from ANBlocks.TransformationBlocks import *
+from ANBlocks.EffectBlocks import *
 
 class MainWindow(QtWidgets.QMainWindow):
     
@@ -40,10 +41,10 @@ class MainWindow(QtWidgets.QMainWindow):
         #self.mainWidget.setLayout(self.layout)
         self.setCentralWidget(self.layout)
 
-        test1 = TranslateXBlock(parent=self.mainCodeTree)
+        #test1 = TranslateXBlock(parent=self.mainCodeTree)
 
         #self.transXBlock.setText(0, "lolahah")
-        self.mainCodeTree.addBlock(test1)
+        #self.mainCodeTree.addBlock(test1)
 
 
         self.CPPBuffer = """"""
@@ -52,33 +53,39 @@ class MainWindow(QtWidgets.QMainWindow):
         {
             "categoryName": "Transform",
             "categoryBlocks": [
-                    TranslateXBlock,
-                    TranslateYBlock,
-                    TranslateZBlock,
-                    RotateXBlock,
-                    RotateYBlock,
-                    RotateZBlock,
-                    ScaleXBlock,
-                    ScaleYBlock,
-                    ScaleZBlock,
-                    SetPosXBlock,
-                    SetPosYBlock,
-                    SetPosZBlock,
-                    SetRotXBlock,
-                    SetRotYBlock,
-                    SetRotZBlock,
-                    SetScaleXBlock,
-                    SetScaleYBlock,
-                    SetScaleZBlock,
-                    DeleteObjectBlock
+                TranslateXBlock,
+                TranslateYBlock,
+                TranslateZBlock,
+                RotateXBlock,
+                RotateYBlock,
+                RotateZBlock,
+                ScaleXBlock,
+                ScaleYBlock,
+                ScaleZBlock,
+                SetPosXBlock,
+                SetPosYBlock,
+                SetPosZBlock,
+                SetRotXBlock,
+                SetRotYBlock,
+                SetRotZBlock,
+                SetScaleXBlock,
+                SetScaleYBlock,
+                SetScaleZBlock,
+                DeleteObjectBlock
 
-                ]
+            ]
         },
         {
-            "categoryName": "Other",
+            "categoryName": "Effects",
             "categoryBlocks": [
-                    RotateZBlock
-                ]
+                SoundEffectBlock,
+                VisualEffectBlock
+            ]
+        },
+        {
+            "categoryName": "Empty",
+            "categoryBlocks": [
+            ]
         }]
 
         self.setupStatusBar()
@@ -119,21 +126,30 @@ class MainWindow(QtWidgets.QMainWindow):
         self.toolboxCategoryChanged(0)
 
     def toolboxCategoryChanged(self, index):
-        numberOfBlocks = self.toolbox_TreeList.invisibleRootItem().childCount()
+        print("\n\n\n")
+        print("Starting to refresh the page")
+        print("Index is " + str(index))
 
-        for itemNo in range(numberOfBlocks):
-            self.toolbox_TreeList.takeTopLevelItem(itemNo)
+        numberOfBlocks = self.toolbox_TreeList.invisibleRootItem().childCount()
+        print("We should be deleting " + str(numberOfBlocks) + " items (same as the previous count)")
+        """for itemNo in range(numberOfBlocks):
+            print(self.toolbox_TreeList.takeTopLevelItem(itemNo))
+            #print("removing an item")"""
+        self.toolbox_TreeList.clear()
+
+        print("Current child count is " + str(self.toolbox_TreeList.invisibleRootItem().childCount()) + "; it should be 0")
 
         BlockList = []
         BlockList = self.blockList[index]["categoryBlocks"]
-        print("Found it")
-
-
+        print("There are " + str(len(BlockList)) + " items in this list of blocks")
         for block in BlockList:
             NewBlockListItem = BlockKit.BlockListItem(block().title, block)
             self.toolbox_TreeList.addTopLevelItem(NewBlockListItem)
 
-        print(BlockList)
+            print("Added the block with title: " + block().title)
+
+        
+        print("Done refreshing the page")
 
     def addBlockFromList(self):
         currentlySelectedBlock = self.toolbox_TreeList.currentItem().blockClass(parent=self.mainCodeTree)
@@ -156,10 +172,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         for itemNo in range(child_count):
             item = invisibleroot.child(itemNo)
-            print(item.title)
+            #print(item.title)
             self.CPPBuffer += "\t" + item.CPPCodeComposite() + "\n"
 
-        self.CPPBufferWithHeaderFooter = "int assembleNextTestSprite::onExecute() {\n" + self.CPPBuffer + "\treturn true;\n}"
+        self.CPPBufferWithHeaderFooter = "int assembleNextTestSprite::playerCollision(ActivePhysics *apThis, ActivePhysics *apOther) {\n" + self.CPPBuffer + "}"
         self.mainCodeView.setPlainText(self.CPPBufferWithHeaderFooter)
 
     def setupNodeView(self):

@@ -1,5 +1,32 @@
 List of necessary blocks:
 
+	- Effects
+		- Play a sound effect
+		- Spawn a visual effect
+
+	- Active Physics
+		- X distance to center
+		- Y distance to center
+		- X distance to edge
+		- Y distance to edge
+		- "category1"
+		- "category2"
+		- "bitfield1"
+		- "bitfield2"
+		- "unkShort1C"
+		- "callback"
+
+	- Math
+		- Vector3
+		- Float
+		- Integer
+		- some other things probably
+
+	- Models & Textures
+		- Set up model from BRRES file
+
+
+Done:
 	- Transform
 		- Set position
 			- Set position x
@@ -26,29 +53,3 @@ List of necessary blocks:
 			- Scale on Y axis
 			- Scale on Z axis
 		- Delete object
-
-	- Effects
-		- Play a sound effect
-		- Spawn a visual effect
-
-	- Active Physics
-		- X distance to center
-		- Y distance to center
-		- X distance to edge
-		- Y distance to edge
-		- "category1"
-		- "category2"
-		- "bitfield1"
-		- "bitfield2"
-		- "unkShort1C"
-		- "callback"
-
-	- Math
-		- Vector3
-		- Float
-		- Integer
-		- some other things probably
-
-	- Models & Textures
-		- Set up model from BRRES file
-

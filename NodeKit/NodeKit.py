@@ -11,7 +11,6 @@ class NodeView(QtWidgets.QGraphicsView):
 
 	def mousePressEvent(self, event):
 		event.ignore()
-		print("view is recieving")
 		super(NodeView, self).mousePressEvent(event)
 
 	def mouseMoveEvent(self, event):
@@ -35,7 +34,6 @@ class NodeScene(QtWidgets.QGraphicsScene):
 
 	def mousePressEvent(self, event):
 		event.ignore()
-		print("scene is recieving")
 		super(NodeScene, self).mousePressEvent(event)
 
 	def mouseMoveEvent(self, event):
@@ -294,7 +292,6 @@ class IOPin(QtWidgets.QGraphicsItem):
 
 	def mousePressEvent(self, event):
 		event.accept()
-		print("Node is being clicked on")
 		self.isBeingClickedOn = True
 
 		self.newConnection = NodeConnection(QtCore.QPointF(self.x + 10, self.y + 10), event.scenePos(), parent=self)

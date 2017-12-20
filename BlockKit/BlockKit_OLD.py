@@ -33,6 +33,15 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 
 				inputItem["inputWidget"] = newSpinBox
 
+			elif inputItem["inputType"] == "editableCombo":
+				newCombo = QtWidgets.QComboBox()
+				newCombo.setEditable(True)
+				print("setupData")
+				newCombo.addItems(self.listOfInputs)
+				newLayout.addWidget(newCombo)
+
+				inputItem["inputWidget"] = newCombo
+
 		itemWidget = QtWidgets.QWidget()
 		itemWidget.setLayout(newLayout)
 		self.parent.setItemWidget(self, 0, itemWidget)
