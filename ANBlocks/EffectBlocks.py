@@ -10,8 +10,8 @@ from BlockKit import BlockItem
 ###########################
 
 class BasicEffectBlock(BlockItem):
-	def __init__(self, parent=None):
-		super(BasicEffectBlock, self).__init__(parent)
+	def __init__(self, blockData=None, parent=None):
+		super(BasicEffectBlock, self).__init__(blockData, parent)
 
 		self.backgroundTint = QtGui.QColor(219, 198, 255)
 		self.setTint()
@@ -21,59 +21,48 @@ class BasicEffectBlock(BlockItem):
 ###########################
 
 class SoundEffectBlock(BasicEffectBlock):
-	def __init__(self, parent=None):
-		super(SoundEffectBlock, self).__init__(parent)
-		self.setTitle("Play a sound effect")
-		self.listOfInputs = []
+	title = ("Play a sound effect")
+	listOfInputs = []
 
-		
-		self.setInputs([
-			{
-				"inputType": "label",
-				"labelText": "Play sound effect",
-				"internalName": "label1"
-			},
-			{
-				"inputName": "SFX",
-				"inputType": "editableCombo",
-				"inputOptions": self.listOfInputs,
-				"internalName": "~SFX",
+	inputs = [
+		{
+			"inputType": "label",
+			"labelText": "Play sound effect",
+			"internalName": "label1"
+		},
+		{
+			"inputName": "SFX",
+			"inputType": "editableCombo",
+			"internalName": "~SFX",
 
-			}
-		])
+		}
+	]
 
-		self.populateListOfInputs(os.path.join(os.path.dirname(__file__), "SFXList.txt"))
+	CPPCode = "PlaySound(this, ~SFX);"
 
-		if parent:
-			self.setupData()
-		self.setCPPCode("PlaySound(this, ~SFX);")
+	inputFilename = os.path.join(os.path.dirname(__file__), "SFXList.txt")
+
 
 class VisualEffectBlock(BasicEffectBlock):
-	def __init__(self, parent=None):
-		super(VisualEffectBlock, self).__init__(parent)
-		self.setTitle("Play a visual effect")
-		self.listOfInputs = []
+	title = "Play a visual effect"
+	listOfInputs = []
 
-		
-		self.setInputs([
-			{
-				"inputType": "label",
-				"labelText": "Play visual effect",
-				"internalName": "label1"
-			},
-			{
-				"inputName": "VFX",
-				"inputType": "editableCombo",
-				"inputOptions": self.listOfInputs,
-				"internalName": "~VFX",
+	
+	inputs = [
+		{
+			"inputType": "label",
+			"labelText": "Play visual effect",
+			"internalName": "label1"
+		},
+		{
+			"inputName": "VFX",
+			"inputType": "editableCombo",
+			"internalName": "~VFX",
 
-			}
-		])
+		}
+	]
 
-		self.populateListOfInputs(os.path.join(os.path.dirname(__file__), "VFXList.txt"))
+	inputFilename = os.path.join(os.path.dirname(__file__), "VFXList.txt")
 
-		if parent:
-			self.setupData()
-
-		## TODO: Set up position, rotation, scale stuff
-		self.setCPPCode("S16Vec simpleRot = {0,0,0};\n\tVec simpleScale = {1.0f, 1.0f, 1.0f};\n\tSpawnEffect(\"~VFX\", 0, &this->pos, &simpleRot, &simpleScale);")
+	## TODO: Set up position, rotation, scale stuff
+	CPPCode = "S16Vec simpleRot = {0,0,0};\n\tVec simpleScale = {1.0f, 1.0f, 1.0f};\n\tSpawnEffect(\"~VFX\", 0, &this->pos, &simpleRot, &simpleScale);"

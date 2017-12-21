@@ -4,23 +4,26 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 Qt = QtCore.Qt
 
 class BlockItem(QtWidgets.QTreeWidgetItem):
+	inputs = []
+
+
+
+	backgroundTint = QtGui.QColor(255,255,255)
+
+	title = "Empty node"
+
+	CPPCode = "No CPP code loaded" # will be overwritten by the code that this 
+
+	listOfInputs = ["wubba", "lubba"]
+
+	inputFilename = ""
+
 	def __init__(self, blockData=None, parent=None):
 		super(BlockItem, self).__init__(parent)
 		self.parent = parent
-		self.inputs = []
-
 		self.newBlockData = blockData
-
-		self.backgroundTint = QtGui.QColor(255,255,255)
-
-		self.title = "Empty node"
-
-		self.CPPCode = "No CPP code loaded" # will be overwritten by the code that this 
-
-		self.listOfInputs = ["wubba", "lubba"]
-
-		print("parent is" + str(self.parent))
-		#self.setupData()
+		#print("parent is" + str(self.parent))
+		self.setupData()
 
 
 
@@ -32,12 +35,15 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 
 		#newLayout.addWidget(self.TitleLabel)
 
+		#print(self.inputs)
 
 		for inputItem in self.inputs:
+			print(inputItem)
 			if inputItem["inputType"] == "label":
 				newLabel = QtWidgets.QLabel(inputItem["labelText"])
 				newLayout.addWidget(newLabel)
 				inputItem["inputWidget"] = newLabel
+				print(inputItem["labelText"])
 
 			if inputItem["inputType"] == "float":
 				#newLabel = QtWidgets.QLabel(inputItem["inputName"])
@@ -52,6 +58,7 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 				newCombo = QtWidgets.QComboBox()
 				newCombo.setEditable(True)
 				
+				self.populateListOfInputs(self.inputFilename)
 				newCombo.addItems(self.listOfInputs)
 				newLayout.addWidget(newCombo)
 
@@ -73,12 +80,14 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 		self.setIsCurrentSelection(False)
 		self.TitleLabel.setStyleSheet("QLabel {color: black;}")
 
-		print("We've set up the data")
+		#print("We've set up the data")
 
 		if self.newBlockData != None:
 			self.unpackBlockData()
 
-		return
+
+
+		
 
 	def columnCount(self):
 		return len(self.inputs)
@@ -219,13 +228,10 @@ class BlockTreeWidget(QtWidgets.QTreeWidget):
 		return
 
 	def addBlock(self, item):
-		#item.setupData()
-		print("addBlock() function with type item " + str(item))
-		print("the parent *should* be " + str(self))
-		newItem = item(parent=self)
+		#print("addBlock() function with type item " + str(item))
+		#print("the parent *should* be " + str(self))
+		newItem = item
 		self.addTopLevelItem(newItem)
-		#self.takeTopLevelItem(self.indexFromItem(self.addBlockItem).row())
-		#self.setupAddBox()
 
 	def itemChanged(self, current, previous):
 		try:
@@ -244,7 +250,7 @@ class BlockTreeWidget(QtWidgets.QTreeWidget):
 	def dropEvent(self, event):
 		event.acceptProposedAction()
 		#print("drop event")
-		print(event.mimeData().data("AN2018Block"))
+		#print(event.mimeData().data("AN2018Block"))
 
 	def dropMimeData(self, parent, index, data, action):
 		#print(parent.title)
@@ -296,11 +302,11 @@ class ActorAPComboBox(QtWidgets.QComboBox):
 			print("This combo box can't find the main class; therefore it cannot populate.")
 			return
 
-		print(self.parent.parent.currentCPPFunction())
-		print(self.parent.parent.currentCPPFunction().title)
-		print("Valid transform args: " + str(self.parent.parent.currentCPPFunction().validTransformArgs))
+		#print(self.parent.parent.currentCPPFunction)
+		#print(self.parent.parent.currentCPPFunction.title)
+		#print("Valid transform args: " + str(self.parent.parent.currentCPPFunction.validTransformArgs))
 
-		self.validTransformArgs = self.parent.parent.currentCPPFunction().validTransformArgs
+		self.validTransformArgs = self.parent.parent.currentCPPFunction.validTransformArgs
 
 		for i in self.validTransformArgs:
 			self.addItem(i["argVisibleName"])
@@ -308,8 +314,8 @@ class ActorAPComboBox(QtWidgets.QComboBox):
 		return
 
 	def updateCodeValue(self, index):
-		print(index)
+		#print(index)
 		self.codeValue = self.validTransformArgs[index]["argCodeValue"]
-		print(self.codeValue)
+		#print(self.codeValue)
 
 		

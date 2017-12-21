@@ -130,7 +130,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.CPPFunctionOutline_DockW.setWindowTitle("Outline")
 
         self.CPPFunctionOutline = OutlineTreeWidget()
-        #self.CPPFunctionOutline.currentItemChanged.connect(self.outlineItemChanged)
+        self.CPPFunctionOutline.currentItemChanged.connect(self.outlineItemChanged)
         self.CPPFunctionOutline.setHeaderHidden(True)
         self.CPPFunctionOutline.setMaximumWidth(300)
 
@@ -139,7 +139,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.CPPFunctionOutline.addTopLevelItem(self.rootOutlineItem)
 
         for category in self.currentCPPClass.functions:
-            newCategoryItem = QtWidgets.QTreeWidgetItem()
+            newCategoryItem = OutlineTreeWidgetItem_Category()
             newCategoryItem.setText(0, category["categoryName"])
             self.rootOutlineItem.addChild(newCategoryItem)
 
@@ -152,23 +152,30 @@ class MainWindow(QtWidgets.QMainWindow):
         self.addDockWidget(Qt.LeftDockWidgetArea, self.CPPFunctionOutline_DockW)
 
     def outlineItemChanged(self, current, previous):
-        if type(current) is not OutlineTreeWidgetItem_Func:
+        if type(current) != OutlineTreeWidgetItem_Func:
+            print("OutlineTreeWidgetItem_Func is not " + str(type(current)) + ", so we're returning")
             return
 
         self.currentCPPFunction = current.func
         print("We should have changed the function successfully")
 
-        blockList = []
-        for i in range(0, self.mainCodeTree.invisibleRootItem().childCount()):
-            blockList.append(self.mainCodeTree.invisibleRootItem().child(i).packBlockData())
+        if type(previous) == OutlineTreeWidgetItem_Func:
+            blockList = []
+            for i in range(0, self.mainCodeTree.invisibleRootItem().childCount()):
+                blockList.append(self.mainCodeTree.invisibleRootItem().child(i).packBlockData())
 
-        current.func.blocks = blockList
+
+            previous.func.blocks = blockList
+            print(previous.func.blocks)
         self.mainCodeTree.clear()
 
-        for block in current.func.blocks:
-            newBlock = self.loadBlock(block)
-            newBlock = BlockItem(blockData=block, parent=self.mainCodeTree)
-            self.mainCodeTree.addBlock(newBlock)
+        if type(current) == OutlineTreeWidgetItem_Func:
+            print(current.func.blocks)
+            for block in current.func.blocks:
+                #newBlock = self.loadBlock(block)
+                print(block)
+                newBlock = BlockItem(blockData=block, parent=self.mainCodeTree)
+                self.mainCodeTree.addBlock(newBlock)
 
         self.setWindowTitle("TestSpriteName - " + self.currentCPPFunction().title + " - Assemble Next 2018")
 
@@ -243,8 +250,8 @@ class MainWindow(QtWidgets.QMainWindow):
         #print("Done refreshing the page")
 
     def addBlockFromList(self):
-        currentlySelectedBlock = self.toolbox_TreeList.currentItem().blockClass
-        print(currentlySelectedBlock)
+        currentlySelectedBlock = self.toolbox_TreeList.currentItem().blockClass(blockData=None, parent=self.mainCodeTree)
+        #print(currentlySelectedBlock)
         self.mainCodeTree.addBlock(currentlySelectedBlock)
 
     def setupStatusBar(self):
@@ -290,6 +297,9 @@ class OutlineTreeWidget(QtWidgets.QTreeWidget):
     def __init__(self, parent=None):
         super(OutlineTreeWidget, self).__init__(parent)
         
+class OutlineTreeWidgetItem_Category(QtWidgets.QTreeWidgetItem):
+    def __init__(self, parent=None):
+        super(OutlineTreeWidgetItem_Category, self).__init__(parent)
 
 class OutlineTreeWidgetItem_Func(QtWidgets.QTreeWidgetItem):
     def __init__(self, func=None, parent=None):

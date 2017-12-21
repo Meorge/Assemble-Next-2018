@@ -11,33 +11,33 @@ from BlockKit import BlockItem
 # Base Transform Template #
 ###########################
 class BasicTransformBlock(BlockItem):
-	def __init__(self, parent=None):
-		super(BasicTransformBlock, self).__init__(parent)
+	def __init__(self, blockData=None, parent=None):
+		super(BasicTransformBlock, self).__init__(blockData, parent)
 
 class BasicXBlock(BasicTransformBlock):
-	def __init__(self, parent=None):
-		super(BasicXBlock, self).__init__(parent)
+	def __init__(self, blockData=None, parent=None):
+		super(BasicXBlock, self).__init__(blockData, parent)
 
 		self.backgroundTint = QtGui.QColor(255, 215, 215)
 		self.setTint()
 
 class BasicYBlock(BasicTransformBlock):
-	def __init__(self, parent=None):
-		super(BasicYBlock, self).__init__(parent)
+	def __init__(self, blockData=None, parent=None):
+		super(BasicYBlock, self).__init__(blockData, parent)
 
 		self.backgroundTint = QtGui.QColor(217, 255, 215)
 		self.setTint()
 
 class BasicZBlock(BasicTransformBlock):
-	def __init__(self, parent=None):
-		super(BasicZBlock, self).__init__(parent)
+	def __init__(self, blockData=None, parent=None):
+		super(BasicZBlock, self).__init__(blockData, parent)
 
 		self.backgroundTint = QtGui.QColor(215, 215, 255)
 		self.setTint()
 
 class BasicOtherBlock(BasicTransformBlock):
-	def __init__(self, parent=None):
-		super(BasicOtherBlock, self).__init__(parent)
+	def __init__(self, blockData=None, parent=None):
+		super(BasicOtherBlock, self).__init__(blockData, parent)
 
 		self.backgroundTint = QtGui.QColor(215, 215, 215)
 		self.setTint()
@@ -83,9 +83,6 @@ class TranslateXYZBlock(BasicTransformBlock):
 	]
 
 	CPPCode = "~POSTHING~->pos.x += ~X~;\n\t~POSTHING~->pos.y += ~Y~;\n\t~POSTHING~->pos.z += ~Z~;"
-
-	def __init__(self, parent=None):
-		super(TranslateXYZBlock, self).__init__(parent)
 
 class TranslateXBlock(BasicXBlock):
 		title = "Translate on X axis"
