@@ -130,7 +130,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.CPPFunctionOutline_DockW.setWindowTitle("Outline")
 
         self.CPPFunctionOutline = OutlineTreeWidget()
-        self.CPPFunctionOutline.currentItemChanged.connect(self.outlineItemChanged)
+        #self.CPPFunctionOutline.currentItemChanged.connect(self.outlineItemChanged)
         self.CPPFunctionOutline.setHeaderHidden(True)
         self.CPPFunctionOutline.setMaximumWidth(300)
 
@@ -160,16 +160,17 @@ class MainWindow(QtWidgets.QMainWindow):
 
         blockList = []
         for i in range(0, self.mainCodeTree.invisibleRootItem().childCount()):
-            blockList.append(self.mainCodeTree.invisibleRootItem().child(i))
+            blockList.append(self.mainCodeTree.invisibleRootItem().child(i).packBlockData())
 
         current.func.blocks = blockList
         self.mainCodeTree.clear()
 
         for block in current.func.blocks:
-            self.mainCodeTree.addBlock(block)
+            newBlock = self.loadBlock(block)
+            newBlock = BlockItem(blockData=block, parent=self.mainCodeTree)
+            self.mainCodeTree.addBlock(newBlock)
 
         self.setWindowTitle("TestSpriteName - " + self.currentCPPFunction().title + " - Assemble Next 2018")
-
 
     def setupToolbox(self):
         self.toolboxDockWidget = QtWidgets.QDockWidget()
@@ -226,14 +227,14 @@ class MainWindow(QtWidgets.QMainWindow):
         for block in BlockList:
 
             if type(block) is dict:
-                NewBlockListItem = BlockKit.BlockListItem(block["parent"]().title, block["parent"])
+                NewBlockListItem = BlockKit.BlockListItem(block["parent"].title, block["parent"])
                 self.toolbox_TreeList.addTopLevelItem(NewBlockListItem)
                 for subblock in block["children"]:
-                    NewSubBlockListItem = BlockKit.BlockListItem(subblock().title, subblock)
+                    NewSubBlockListItem = BlockKit.BlockListItem(subblock.title, subblock)
                     NewBlockListItem.addChild(NewSubBlockListItem)
 
             else:
-                NewBlockListItem = BlockKit.BlockListItem(block().title, block)
+                NewBlockListItem = BlockKit.BlockListItem(block.title, block)
                 self.toolbox_TreeList.addTopLevelItem(NewBlockListItem)
             #print("Added the block with title: " + block().title)
 
@@ -242,7 +243,8 @@ class MainWindow(QtWidgets.QMainWindow):
         #print("Done refreshing the page")
 
     def addBlockFromList(self):
-        currentlySelectedBlock = self.toolbox_TreeList.currentItem().blockClass(parent=self.mainCodeTree)
+        currentlySelectedBlock = self.toolbox_TreeList.currentItem().blockClass
+        print(currentlySelectedBlock)
         self.mainCodeTree.addBlock(currentlySelectedBlock)
 
     def setupStatusBar(self):

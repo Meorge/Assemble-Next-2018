@@ -4,10 +4,12 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 Qt = QtCore.Qt
 
 class BlockItem(QtWidgets.QTreeWidgetItem):
-	def __init__(self, parent=None):
+	def __init__(self, blockData=None, parent=None):
 		super(BlockItem, self).__init__(parent)
 		self.parent = parent
 		self.inputs = []
+
+		self.newBlockData = blockData
 
 		self.backgroundTint = QtGui.QColor(255,255,255)
 
@@ -17,8 +19,10 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 
 		self.listOfInputs = ["wubba", "lubba"]
 
-		if parent:
-			self.setupData()
+		print("parent is" + str(self.parent))
+		#self.setupData()
+
+
 
 	def setupData(self):
 		#self.setText(0, self.title)
@@ -63,9 +67,18 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 
 		self.itemWidget = QtWidgets.QWidget()
 		self.itemWidget.setLayout(newLayout)
+
 		self.parent.setItemWidget(self, 0, self.itemWidget)
+
 		self.setIsCurrentSelection(False)
 		self.TitleLabel.setStyleSheet("QLabel {color: black;}")
+
+		print("We've set up the data")
+
+		if self.newBlockData != None:
+			self.unpackBlockData()
+
+		return
 
 	def columnCount(self):
 		return len(self.inputs)
@@ -136,6 +149,41 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 
 		return
 
+	def packBlockData(self):
+		blockVarData = []
+		for i in self.inputs:
+			if i["inputType"] == "label":
+				continue
+
+			varDict = {}
+			varDict["var"] = i["internalName"]
+
+			varDict["value"] = None
+			if i["inputType"] == "float": varDict["value"] = i["inputWidget"].value()
+			elif i["inputType"] == "editableCombo": varDict["value"] = i["inputWidget"].currentText()
+			elif i["inputType"] == "actorAP": varDict["value"] = i["inputWidget"].currentIndex()
+
+			blockVarData.append(varDict)
+
+		blockData = {
+			"blockName": self.__class__.__name__,
+			"blockVars": blockVarData
+		}
+		print(blockData)
+		return blockData
+
+	def unpackBlockData(self):
+		for i in self.inputs:
+
+			for var in self.newBlockData:
+				if i["internalName"] == var["var"]:
+					if i["inputType"] == "float": i["inputWidget"].setValue(var["value"])
+					elif i["inputType"] == "editableCombo": i["inputWidget"].setCurrentText(var["value"])
+					elif i["inputType"] == "actorAP": i["inputWidget"].setCurrentIndex(var["value"])
+
+		return
+
+
 class BlockTreeWidget(QtWidgets.QTreeWidget):
 	def __init__(self, parent=None):
 		super(BlockTreeWidget, self).__init__(parent)
@@ -171,11 +219,13 @@ class BlockTreeWidget(QtWidgets.QTreeWidget):
 		return
 
 	def addBlock(self, item):
-		item.setupData()
-		self.addTopLevelItem(item)
-		item.setIsCurrentSelection(False)
+		#item.setupData()
+		print("addBlock() function with type item " + str(item))
+		print("the parent *should* be " + str(self))
+		newItem = item(parent=self)
+		self.addTopLevelItem(newItem)
 		#self.takeTopLevelItem(self.indexFromItem(self.addBlockItem).row())
-		self.setupAddBox()
+		#self.setupAddBox()
 
 	def itemChanged(self, current, previous):
 		try:
