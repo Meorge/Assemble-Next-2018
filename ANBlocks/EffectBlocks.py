@@ -10,6 +10,7 @@ from BlockKit import BlockItem
 ###########################
 
 class BasicEffectBlock(BlockItem):
+	moduleName = os.path.basename(__file__)
 	def __init__(self, blockData=None, parent=None):
 		super(BasicEffectBlock, self).__init__(blockData, parent)
 

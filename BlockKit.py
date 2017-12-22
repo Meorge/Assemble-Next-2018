@@ -18,10 +18,13 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 
 	inputFilename = ""
 
+	moduleName = ""
+
 	def __init__(self, blockData=None, parent=None):
 		super(BlockItem, self).__init__(parent)
 		self.parent = parent
 		self.newBlockData = blockData
+		print("NEW BLOCK DATA - " + str(self.newBlockData))
 		#print("parent is" + str(self.parent))
 		self.setupData()
 
@@ -38,12 +41,12 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 		#print(self.inputs)
 
 		for inputItem in self.inputs:
-			print(inputItem)
+			#print(inputItem)
 			if inputItem["inputType"] == "label":
 				newLabel = QtWidgets.QLabel(inputItem["labelText"])
 				newLayout.addWidget(newLabel)
 				inputItem["inputWidget"] = newLabel
-				print(inputItem["labelText"])
+				#print(inputItem["labelText"])
 
 			if inputItem["inputType"] == "float":
 				#newLabel = QtWidgets.QLabel(inputItem["inputName"])
@@ -176,6 +179,7 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 
 		blockData = {
 			"blockName": self.__class__.__name__,
+			"blockFile": self.moduleName,
 			"blockVars": blockVarData
 		}
 		print(blockData)
@@ -184,7 +188,7 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 	def unpackBlockData(self):
 		for i in self.inputs:
 
-			for var in self.newBlockData:
+			for var in self.newBlockData["blockVars"]:
 				if i["internalName"] == var["var"]:
 					if i["inputType"] == "float": i["inputWidget"].setValue(var["value"])
 					elif i["inputType"] == "editableCombo": i["inputWidget"].setCurrentText(var["value"])

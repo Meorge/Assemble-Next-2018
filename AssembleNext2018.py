@@ -2,6 +2,7 @@
 
 import os
 import sys
+import importlib
 
 import NodeKit as nl
 import AppKit
@@ -163,21 +164,26 @@ class MainWindow(QtWidgets.QMainWindow):
             blockList = []
             for i in range(0, self.mainCodeTree.invisibleRootItem().childCount()):
                 blockList.append(self.mainCodeTree.invisibleRootItem().child(i).packBlockData())
+                #blockList.append("this should be saved" + str(self.mainCodeTree.invisibleRootItem().child(i)))
 
 
             previous.func.blocks = blockList
-            print(previous.func.blocks)
         self.mainCodeTree.clear()
 
         if type(current) == OutlineTreeWidgetItem_Func:
-            print(current.func.blocks)
             for block in current.func.blocks:
-                #newBlock = self.loadBlock(block)
-                print(block)
-                newBlock = BlockItem(blockData=block, parent=self.mainCodeTree)
-                self.mainCodeTree.addBlock(newBlock)
+                newBlock = self.createNewBlockFromData(block)
+                #self.mainCodeTree.addBlock(newBlock)
 
         self.setWindowTitle("TestSpriteName - " + self.currentCPPFunction().title + " - Assemble Next 2018")
+
+    def createNewBlockFromData(self, data):
+        moduleToImport = importlib.import_module(("ANBlocks." + data["blockFile"])[:-3])
+        print(("ANBlocks." + data["blockFile"])[:-3])
+        block = getattr(moduleToImport, data["blockName"])
+        blockInstance = block(blockData=data, parent=self.mainCodeTree)
+        self.mainCodeTree.addBlock(blockInstance)
+        return
 
     def setupToolbox(self):
         self.toolboxDockWidget = QtWidgets.QDockWidget()
