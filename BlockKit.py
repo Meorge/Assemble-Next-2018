@@ -237,6 +237,8 @@ class BlockTreeWidget(QtWidgets.QTreeWidget):
 		newItem = item
 		self.addTopLevelItem(newItem)
 
+		self.parent.currentCPPFunction.blocks.append(item)
+
 	def itemChanged(self, current, previous):
 		try:
 			current.setIsCurrentSelection(True)

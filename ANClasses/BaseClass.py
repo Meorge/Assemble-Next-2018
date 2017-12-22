@@ -6,7 +6,10 @@ class NewerCPPFunction(object):
 
     blocks = []
 
+
+
 class NewerCPPClass(object):
     className = ""
     header = ""
     footer = ""
+    functions = []

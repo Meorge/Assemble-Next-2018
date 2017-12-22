@@ -43,6 +43,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.setCentralWidget(self.mainCodeTree)
 
+
         #test1 = TranslateXBlock(parent=self.mainCodeTree)
 
         #self.transXBlock.setText(0, "lolahah")
@@ -125,6 +126,43 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setupToolbox()
         self.setupOutlineBox()
 
+        self.setupMenuBar()
+
+
+    def setupMenuBar(self):
+        self.menuBar = QtWidgets.QMenuBar()
+        self.fileMenu = self.menuBar.addMenu("&File")
+
+        self.saveAsAction = QtWidgets.QAction("&Save As", self)
+        self.saveAsAction.setShortcut(QtGui.QKeySequence.Save)
+        self.saveAsAction.triggered.connect(self.saveFileAs)
+
+        self.fileMenu.addAction(self.saveAsAction)
+        self.setMenuBar(self.menuBar)
+
+    def saveFileAs(self):
+        self.generateSpriteContent()
+        with open("out.an", "w") as file:
+            #file.write(self.generateSpriteContent())
+            file.close()
+
+    def generateSpriteContent(self):
+        bigBuffer = ""
+        for functionCat in self.currentCPPClass.functions:
+            print("currently at function " + functionCat["categoryName"])
+            listOfCollisionFuncs = functionCat["categoryFuncs"]
+            #print(listOfCollisionFuncs)
+            for func in listOfCollisionFuncs:
+                miniBuffer = ""
+                print(func.blocks)
+                for block in func.blocks:
+                    print(block)
+                    miniBuffer += json.dumps(block.packBlockData())
+
+                bigBuffer += miniBuffer
+
+        print(bigBuffer)
+
 
     def setupOutlineBox(self):
         self.CPPFunctionOutline_DockW = QtWidgets.QDockWidget()
@@ -152,6 +190,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.CPPFunctionOutline_DockW.setWidget(self.CPPFunctionOutline)
         self.addDockWidget(Qt.LeftDockWidgetArea, self.CPPFunctionOutline_DockW)
 
+        return
+
     def outlineItemChanged(self, current, previous):
         if type(current) != OutlineTreeWidgetItem_Func:
             print("OutlineTreeWidgetItem_Func is not " + str(type(current)) + ", so we're returning")
@@ -178,8 +218,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle("TestSpriteName - " + self.currentCPPFunction().title + " - Assemble Next 2018")
 
     def createNewBlockFromData(self, data):
+        print(data)
+        print(data["blockFile"])
         moduleToImport = importlib.import_module(("ANBlocks." + data["blockFile"])[:-3])
-        print(("ANBlocks." + data["blockFile"])[:-3])
+
         block = getattr(moduleToImport, data["blockName"])
         blockInstance = block(blockData=data, parent=self.mainCodeTree)
         self.mainCodeTree.addBlock(blockInstance)
@@ -258,6 +300,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def addBlockFromList(self):
         currentlySelectedBlock = self.toolbox_TreeList.currentItem().blockClass(blockData=None, parent=self.mainCodeTree)
         #print(currentlySelectedBlock)
+
         self.mainCodeTree.addBlock(currentlySelectedBlock)
 
     def setupStatusBar(self):
@@ -271,9 +314,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def generateCPP(self):
         self.CPPBuffer = """"""
-        
-        invisibleroot = self.mainCodeTree.invisibleRootItem()
-        child_count = invisibleroot.childCount()
+
+        code_invisibleroot = self.mainCodeTree.invisibleRootItem()
+        code_child_count = invisibleroot.childCount()
 
         for itemNo in range(child_count):
             item = invisibleroot.child(itemNo)

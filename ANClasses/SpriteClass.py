@@ -24,7 +24,22 @@ class ~SPRITETITLE~ : public dEn_c {
         	spriteCollision,
         	playerCollision,
         	yoshiCollision,
-        	collisionCat3_StarPower
+        	collisionCat3_StarPower,
+        	collisionCat5_Mario,
+        	_vf108,
+        	collisionCatD_Drill,
+        	_vf110,
+        	collisionCat8_FencePunch,
+        	collisionCat7_GroundPound,
+        	collisionCat7_GroundPoundYoshi,
+        	_vf120,
+        	collisionCatA_PenguinMario,
+        	collisionCat11_PipeCannon,
+        	collisionCat9_RollingObject,
+        	collisionCat1_Fireball_E_Explosion,
+        	collisionCat2_IceBall_15_YoshiIce,
+        	collisionCat13_Hammer,
+        	collisionCat14_YoshiFire
         ]
         self.functions = [{
         "categoryName": "Collision",
@@ -100,3 +115,78 @@ class collisionCat3_StarPower(CollisionFunc):
 	def __init__(self, parent=None):
 	    self.title = "Collided with Star Power"
 	    self.header = self.header.replace("~COLLNAME~", "collisionCat3_StarPower")
+
+class collisionCat5_Mario(CollisionFunc):
+	def __init__(self, parent=None):
+	    self.title = "Collided with a player"
+	    self.header = self.header.replace("~COLLNAME~", "collisionCat3_Mario")
+
+class _vf108(CollisionFunc):
+	def __init__(self, parent=None):
+	    self.title = "Unknown (\"_vf108\")"
+	    self.header = self.header.replace("~COLLNAME~", "_vf108")
+
+class collisionCatD_Drill(CollisionFunc):
+	def __init__(self, parent=None):
+	    self.title = "Collided with a drill"
+	    self.header = self.header.replace("~COLLNAME~", "collisionCatD_Drill")
+
+class _vf110(CollisionFunc):
+	def __init__(self, parent=None):
+	    self.title = "Unknown (\"_vf110\")"
+	    self.header = self.header.replace("~COLLNAME~", "_vf110")
+
+class collisionCat8_FencePunch(CollisionFunc):
+	def __init__(self, parent=None):
+	    self.title = "Punched through a fence"
+	    self.header = self.header.replace("~COLLNAME~", "collisionCat8_FencePunch")
+
+class collisionCat7_GroundPound(CollisionFunc):
+	def __init__(self, parent=None):
+	    self.title = "Ground-pounded"
+	    self.header = self.header.replace("~COLLNAME~", "collisionCat7_GroundPound")
+
+class collisionCat7_GroundPoundYoshi(CollisionFunc):
+	def __init__(self, parent=None):
+	    self.title = "Ground-pounded by a Yoshi"
+	    self.header = self.header.replace("~COLLNAME~", "collisionCat7_GroundPoundYoshi")
+
+class _vf120(CollisionFunc):
+	def __init__(self, parent=None):
+	    self.title = "Unknown (\"_vf120\")"
+	    self.header = self.header.replace("~COLLNAME~", "_vf120")
+
+class collisionCatA_PenguinMario(CollisionFunc):
+	def __init__(self, parent=None):
+	    self.title = "Hit by a sliding Penguin character"
+	    self.header = self.header.replace("~COLLNAME~", "collisionCatA_PenguinMario")
+
+class collisionCat11_PipeCannon(CollisionFunc):
+	def __init__(self, parent=None):
+	    self.title = "Hit by a character out of a pipe cannon"
+	    self.header = self.header.replace("~COLLNAME~", "collisionCat11_PipeCannon")
+
+class collisionCat9_RollingObject(CollisionFunc):
+	def __init__(self, parent=None):
+	    self.title = "Hit by a rolling object"
+	    self.header = self.header.replace("~COLLNAME~", "collisionCat11_RollingObject")
+
+class collisionCat1_Fireball_E_Explosion(CollisionFunc):
+	def __init__(self, parent=None):
+	    self.title = "Hit by a fireball"
+	    self.header = self.header.replace("~COLLNAME~", "collisionCat1_Fireball_E_Explosion")
+
+class collisionCat2_IceBall_15_YoshiIce(CollisionFunc):
+	def __init__(self, parent=None):
+	    self.title = "Hit by an iceball"
+	    self.header = self.header.replace("~COLLNAME~", "collisionCat2_IceBall_15_YoshiIce")
+
+class collisionCat13_Hammer(CollisionFunc):
+	def __init__(self, parent=None):
+	    self.title = "Hit by a hammer"
+	    self.header = self.header.replace("~COLLNAME~", "collisionCat13_Hammer")
+
+class collisionCat14_YoshiFire(CollisionFunc):
+	def __init__(self, parent=None):
+	    self.title = "Hit by a Yoshi fireball"
+	    self.header = self.header.replace("~COLLNAME~", "collisionCat14_YoshiFire")
