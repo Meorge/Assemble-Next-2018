@@ -5,11 +5,13 @@ class NewerCPPFunction(object):
     title = ""
 
     blocks = []
+    blockPackedData = []
 
 
 
 class NewerCPPClass(object):
-    className = ""
+    classDisplayName = "Empty class"
+    classInternalName = "EmptyClass"
     header = ""
     footer = ""
     functions = []

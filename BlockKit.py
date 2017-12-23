@@ -20,6 +20,8 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 
 	moduleName = ""
 
+	packedBlockData = {}
+
 	def __init__(self, blockData=None, parent=None):
 		super(BlockItem, self).__init__(parent)
 		self.parent = parent
@@ -55,6 +57,8 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 				newSpinBox.setMaximum(255)
 				newLayout.addWidget(newSpinBox)
 
+				newSpinBox.valueChanged.connect(self.packBlockData)
+
 				inputItem["inputWidget"] = newSpinBox
 
 			elif inputItem["inputType"] == "editableCombo":
@@ -65,6 +69,8 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 				newCombo.addItems(self.listOfInputs)
 				newLayout.addWidget(newCombo)
 
+				newCombo.currentTextChanged.connect(self.packBlockData)
+
 				inputItem["inputWidget"] = newCombo
 
 			elif inputItem["inputType"] == "actorAP":
@@ -72,6 +78,8 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 
 				newCombo.populateItems()
 				newLayout.addWidget(newCombo)
+
+				newCombo.currentTextChanged.connect(self.packBlockData)
 
 				inputItem["inputWidget"] = newCombo
 
@@ -87,6 +95,7 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 
 		if self.newBlockData != None:
 			self.unpackBlockData()
+		self.packBlockData()
 
 
 
@@ -178,11 +187,11 @@ class BlockItem(QtWidgets.QTreeWidgetItem):
 			blockVarData.append(varDict)
 
 		blockData = {
-			"blockName": self.__class__.__name__,
+			"blockName": str(self.__class__.__name__),
 			"blockFile": self.moduleName,
 			"blockVars": blockVarData
 		}
-		print(blockData)
+		self.packedBlockData = blockData
 		return blockData
 
 	def unpackBlockData(self):
@@ -231,13 +240,24 @@ class BlockTreeWidget(QtWidgets.QTreeWidget):
 
 		return
 
-	def addBlock(self, item):
+	def addBlock(self, item, appendToFunctionData=False):
 		#print("addBlock() function with type item " + str(item))
 		#print("the parent *should* be " + str(self))
 		newItem = item
 		self.addTopLevelItem(newItem)
 
-		self.parent.currentCPPFunction.blocks.append(item)
+		self.parent.currentCPPFunction.blockPackedData.append(item)
+
+		if appendToFunctionData:
+			for p in self.parent.currentCPPClass.functions:
+				for i in p["categoryFuncs"]:
+					if type(self.parent.currentCPPFunction) == type(i):
+						i.blockPackedData.append(item)
+						print(i.blockPackedData)
+						break
+
+		#print(self.parent.currentCPPFunction)
+		#print(self.parent.currentCPPFunction.blockPackedData)
 
 	def itemChanged(self, current, previous):
 		try:

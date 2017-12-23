@@ -3,6 +3,7 @@
 import os
 import sys
 import importlib
+import json
 
 import NodeKit as nl
 import AppKit
@@ -147,21 +148,62 @@ class MainWindow(QtWidgets.QMainWindow):
             file.close()
 
     def generateSpriteContent(self):
-        bigBuffer = ""
-        for functionCat in self.currentCPPClass.functions:
-            print("currently at function " + functionCat["categoryName"])
-            listOfCollisionFuncs = functionCat["categoryFuncs"]
-            #print(listOfCollisionFuncs)
-            for func in listOfCollisionFuncs:
-                miniBuffer = ""
-                print(func.blocks)
-                for block in func.blocks:
-                    print(block)
-                    miniBuffer += json.dumps(block.packBlockData())
+        """
+        Four major levels of data:
+        - Class
+            - Category
+                - Function
+                    - Blocks
+        """
 
-                bigBuffer += miniBuffer
+        # Establishing class/overall variables (level 1)
+        classDict = {}
+        classDict["className"] = self.currentCPPClass.classInternalName
+        classDict["categories"] = []
 
-        print(bigBuffer)
+        
+        # going to start looping through the categories of the class (level 2)
+        for category in self.currentCPPClass.functions:
+            catList = []
+            categoryDict = {}
+            categoryDict["categoryName"] = category["categoryName"]
+            categoryDict["catFuncs"] = []
+
+            blocklist = []
+            # going to start looping through the functions in this category (level 3)
+            for function in category["categoryFuncs"]:
+                #print(function.__name__)
+                newFuncDict = {}
+                newFuncDict["functionName"] = function.__name__
+
+                blocklist = []
+
+                #finally, start looping through the blocks in this function (level 4)
+
+                #print("Function name is " + str(function.__name__) + ", blocks are " + str(function.blockPackedData))
+
+                for block in function.blockPackedData:
+                    #print(block.packedBlockData["blockName"])
+                    blocklist.append(block.packedBlockData)
+
+                    newFuncDict["functionBlocks"] = blocklist
+
+                categoryDict["catFuncs"].append(newFuncDict)
+
+            # not it
+            catList.append(categoryDict)
+                
+            # not it
+            classDict["categories"].append(catList)
+
+        savingJSON = json.dumps(classDict)
+        return savingJSON
+
+    """def saveAttemptTwo(self):
+        invisibleroot = self.CPPFunctionOutline.invisibleRootItem()
+        for childNo in range(invisibleRootItem.childCount()):
+            if invisibleRootItem.child(childNo).childCount() > 0:
+                for childNo_LVL2 in range(invisibleRootItem.child(childNo).childCount()):"""
 
 
     def setupOutlineBox(self):
@@ -198,6 +240,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return
 
         self.currentCPPFunction = current.func
+        #print(self.currentCPPFunction)
         print("We should have changed the function successfully")
 
         if type(previous) == OutlineTreeWidgetItem_Func:
@@ -218,13 +261,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle("TestSpriteName - " + self.currentCPPFunction().title + " - Assemble Next 2018")
 
     def createNewBlockFromData(self, data):
+        print("entering createNewBlockFromData func")
         print(data)
-        print(data["blockFile"])
+        #print("data[\"blockFile\"]: " + type(data["blockFile"]))
         moduleToImport = importlib.import_module(("ANBlocks." + data["blockFile"])[:-3])
 
         block = getattr(moduleToImport, data["blockName"])
         blockInstance = block(blockData=data, parent=self.mainCodeTree)
-        self.mainCodeTree.addBlock(blockInstance)
+        self.mainCodeTree.addBlock(blockInstance, False)
         return
 
     def setupToolbox(self):
@@ -301,7 +345,7 @@ class MainWindow(QtWidgets.QMainWindow):
         currentlySelectedBlock = self.toolbox_TreeList.currentItem().blockClass(blockData=None, parent=self.mainCodeTree)
         #print(currentlySelectedBlock)
 
-        self.mainCodeTree.addBlock(currentlySelectedBlock)
+        self.mainCodeTree.addBlock(currentlySelectedBlock, True)
 
     def setupStatusBar(self):
         self.statusBar = QtWidgets.QStatusBar()
@@ -310,7 +354,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.generateCodeButton = QtWidgets.QPushButton("Generate C++ Code")
         self.generateCodeButton.clicked.connect(self.generateCPP)
         #self.statusBar.addWidget(self.generateCodeButton)
-
 
     def generateCPP(self):
         self.CPPBuffer = """"""

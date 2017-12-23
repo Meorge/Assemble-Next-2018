@@ -2,7 +2,8 @@ from .BaseClass import *
 
 class NewerCPPClass_Sprite(NewerCPPClass):
     def __init__(self, parent=None):
-        self.className = "Sprite"
+        self.classDisplayName = "Sprite"
+        self.classInternalName = "NewerCPPClass_Sprite"
         self.header = """
         #include <common.h>
 #include <game.h>
@@ -44,7 +45,10 @@ class ~SPRITETITLE~ : public dEn_c {
         self.functions = [{
         "categoryName": "Collision",
         "categoryFuncs":self.collisionFunctions
-        }]
+        },
+        {"categoryName": "Category #2",
+        "categoryFuncs": []}
+        ]
 
 class CollisionFunc(NewerCPPFunction):
 	validTransformArgs = [
