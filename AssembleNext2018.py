@@ -174,7 +174,7 @@ class MainWindow(QtWidgets.QMainWindow):
             for function in category["categoryFuncs"]:
                 #print(function.__name__)
                 newFuncDict = {}
-                newFuncDict["functionName"] = function.__name__
+                newFuncDict["functionName"] = function.__class__.__name__
 
                 newFuncDict["functionBlocks"] = []
 
@@ -223,8 +223,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.rootOutlineItem.addChild(newCategoryItem)
 
             for func in category["categoryFuncs"]:
-                newFuncItem = OutlineTreeWidgetItem_Func(func=func())
-                newFuncItem.setText(0, func().title)
+                newFuncItem = OutlineTreeWidgetItem_Func(func=func)
+                newFuncItem.setText(0, func.title)
                 newCategoryItem.addChild(newFuncItem)
 
         self.CPPFunctionOutline_DockW.setWidget(self.CPPFunctionOutline)
