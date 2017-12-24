@@ -240,7 +240,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return
 
         self.currentCPPFunction = current.func
-        #print(self.currentCPPFunction)
+        print(self.currentCPPFunction)
         print("We should have changed the function successfully")
 
         if type(previous) == OutlineTreeWidgetItem_Func:
@@ -268,7 +268,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         block = getattr(moduleToImport, data["blockName"])
         blockInstance = block(blockData=data, parent=self.mainCodeTree)
-        self.mainCodeTree.addBlock(blockInstance, False)
+        self.mainCodeTree.addBlock(blockInstance)
         return
 
     def setupToolbox(self):

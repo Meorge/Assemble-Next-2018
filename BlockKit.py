@@ -247,17 +247,23 @@ class BlockTreeWidget(QtWidgets.QTreeWidget):
 		self.addTopLevelItem(newItem)
 
 		self.parent.currentCPPFunction.blockPackedData.append(item)
-
-		if appendToFunctionData:
+		print(self.parent.currentCPPFunction)
+		print(self.parent.currentCPPFunction.blockPackedData)
+		"""if appendToFunctionData:
 			for p in self.parent.currentCPPClass.functions:
+				print(p["categoryFuncs"])
+				print(len(p["categoryFuncs"]))
+
 				for i in p["categoryFuncs"]:
-					if type(self.parent.currentCPPFunction) == type(i):
+					print("i class: " + str(i.__class__.__name__))
+					if isinstance(self.parent.currentCPPFunction, i.__class__):
+						print(type(i))
 						i.blockPackedData.append(item)
 						print(i.blockPackedData)
-						break
+						break"""
 
-		#print(self.parent.currentCPPFunction)
-		#print(self.parent.currentCPPFunction.blockPackedData)
+		#print(type(self.parent.currentCPPFunction))
+		#print(str(len(self.parent.currentCPPFunction.blockPackedData)) + " blocks in this func")
 
 	def itemChanged(self, current, previous):
 		try:

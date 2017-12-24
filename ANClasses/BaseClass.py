@@ -1,17 +1,21 @@
 class NewerCPPFunction(object):
-    validTransformArgs = []
-    header = ""
-    footer = ""
-    title = ""
+    def __init__(self):
+        super().__init__()
+        self.validTransformArgs = []
+        self.header = ""
+        self.footer = ""
+        self.title = ""
 
-    blocks = []
-    blockPackedData = []
+        self.blocks = []
+        self.blockPackedData = []
 
 
 
 class NewerCPPClass(object):
-    classDisplayName = "Empty class"
-    classInternalName = "EmptyClass"
-    header = ""
-    footer = ""
-    functions = []
+    def __init__(self):
+        super().__init__()
+        self.classDisplayName = "Empty class"
+        self.classInternalName = "EmptyClass"
+        self.header = ""
+        self.footer = ""
+        self.functions = []
