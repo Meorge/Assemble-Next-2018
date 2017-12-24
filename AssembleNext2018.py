@@ -142,7 +142,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setMenuBar(self.menuBar)
 
     def saveFileAs(self):
-        self.generateSpriteContent()
+        print(self.generateSpriteContent())
         with open("out.an", "w") as file:
             #file.write(self.generateSpriteContent())
             file.close()
@@ -182,7 +182,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
                 #print("Function name is " + str(function.__name__) + ", blocks are " + str(function.blockPackedData))
 
-                for block in function.blockPackedData:
+                for block in function().blockPackedData:
                     #print(block.packedBlockData["blockName"])
                     blocklist.append(block.packedBlockData)
 
@@ -225,7 +225,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.rootOutlineItem.addChild(newCategoryItem)
 
             for func in category["categoryFuncs"]:
-                newFuncItem = OutlineTreeWidgetItem_Func(func=func)
+                newFuncItem = OutlineTreeWidgetItem_Func(func=func())
                 newFuncItem.setText(0, func().title)
                 newCategoryItem.addChild(newFuncItem)
 
@@ -258,7 +258,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 newBlock = self.createNewBlockFromData(block)
                 #self.mainCodeTree.addBlock(newBlock)
 
-        self.setWindowTitle("TestSpriteName - " + self.currentCPPFunction().title + " - Assemble Next 2018")
+        self.setWindowTitle("TestSpriteName - " + self.currentCPPFunction.title + " - Assemble Next 2018")
 
     def createNewBlockFromData(self, data):
         print("entering createNewBlockFromData func")
