@@ -176,17 +176,15 @@ class MainWindow(QtWidgets.QMainWindow):
                 newFuncDict = {}
                 newFuncDict["functionName"] = function.__name__
 
-                blocklist = []
+                newFuncDict["functionBlocks"] = []
 
                 #finally, start looping through the blocks in this function (level 4)
 
                 #print("Function name is " + str(function.__name__) + ", blocks are " + str(function.blockPackedData))
 
-                for block in function().blockPackedData:
+                for block in function.blockPackedData:
                     #print(block.packedBlockData["blockName"])
-                    blocklist.append(block.packedBlockData)
-
-                    newFuncDict["functionBlocks"] = blocklist
+                    newFuncDict["functionBlocks"].append(block.packedBlockData)
 
                 categoryDict["catFuncs"].append(newFuncDict)
 

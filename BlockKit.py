@@ -246,10 +246,10 @@ class BlockTreeWidget(QtWidgets.QTreeWidget):
 		newItem = item
 		self.addTopLevelItem(newItem)
 
-		self.parent.currentCPPFunction.blockPackedData.append(item)
+		#self.parent.currentCPPFunction.blockPackedData.append(item)
 		print(self.parent.currentCPPFunction)
 		print(self.parent.currentCPPFunction.blockPackedData)
-		"""if appendToFunctionData:
+		if appendToFunctionData:
 			for p in self.parent.currentCPPClass.functions:
 				print(p["categoryFuncs"])
 				print(len(p["categoryFuncs"]))
@@ -260,7 +260,7 @@ class BlockTreeWidget(QtWidgets.QTreeWidget):
 						print(type(i))
 						i.blockPackedData.append(item)
 						print(i.blockPackedData)
-						break"""
+						break
 
 		#print(type(self.parent.currentCPPFunction))
 		#print(str(len(self.parent.currentCPPFunction.blockPackedData)) + " blocks in this func")
